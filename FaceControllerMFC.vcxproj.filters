@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FaceControllerMFC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FaceControllerMFCDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ewma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMainTab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAdvancedTab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FaceControllerMFC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FaceControllerMFCDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionsDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tracker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ewma.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMainTab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAdvancedTab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FaceControllerMFC.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\FaceControllerMFC.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\ABC.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\left.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\1x.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\2x.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\1xp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\2xp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\leftp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\AI.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\AIp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\dwell.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\dwellp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\GEO.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\GEOp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\logo.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\logobig.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\off.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\settings.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\pause.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\play.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\quickclick.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\timer.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\drag.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\dragp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\eye-open.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\eye-hide.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\chrome.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\stop.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

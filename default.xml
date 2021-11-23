@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<detectSmileGeoFlag>0</detectSmileGeoFlag>
+<detectSmileAIFlag>0</detectSmileAIFlag>
+<detectDwellFlag>1</detectDwellFlag>
+<mouseClick>0</mouseClick>
+<isQuickClick>1</isQuickClick>
+<horSensitivity>3.</horSensitivity>
+<verSensitivity>3.5000000000000000e+00</verSensitivity>
+<smilingTriggerAngle>113</smilingTriggerAngle>
+<minNeighborsSmileDetector>100</minNeighborsSmileDetector>
+<dwellDisp>6.0000002384185791e-01</dwellDisp>
+<dwellDuration>1.</dwellDuration>
+<secQuickClick>8.9999997615814209e-01</secQuickClick>
+<secSmile>5.0000000000000000e-01</secSmile>
+<secOneClick>5.0000000000000000e-01</secOneClick>
+<secDoubleClick>5.0000000000000000e-01</secDoubleClick>
+<secDwellStartTime>2.5000000000000000e+00</secDwellStartTime>
+<curThreadsNum>2</curThreadsNum>
+<flipCameraFlag>1</flipCameraFlag>
+<showVideoFlag>1</showVideoFlag>
+<use2ThreadsFlag>1</use2ThreadsFlag>
+<ewmaAlpha>3.0000001192092896e-01</ewmaAlpha>
+<accumMoveRatio>8.5000002384185791e-01</accumMoveRatio>
+<velocitySlider>3.</velocitySlider>
+<minFaceNeighbors>8</minFaceNeighbors>
+<turnOnEWMA>1</turnOnEWMA>
+<editKeyboard>"C:\Program Files (x86)\Click2Speak\Click2Speak.Client.exe"</editKeyboard>
+<needEqualize>1</needEqualize>
+<needAutostart>0</needAutostart>
+<minDistRatio>4.</minDistRatio>
+<minCornersCount>17</minCornersCount>
+<maxCornersCount>25</maxCornersCount>
+</opencv_storage>
