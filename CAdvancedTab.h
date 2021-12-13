@@ -58,7 +58,7 @@ public:
 	CString mEditKeyboard;
 
 	bool flipCameraFlag = false;
-	bool needEqualize = true;
+	bool needEqualize = false;
 	bool needSound = true;
 	float fSliderEWMA;
 	float fSliderMarks;

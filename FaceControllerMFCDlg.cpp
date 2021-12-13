@@ -532,7 +532,7 @@ void CFaceControllerMFCDlg::OnBnClickedOk()
 	serializeChanges();
 	tracker.openFlag = false;
 	tracker.cap.release();
-	tracker.OnUnhookMouse();
+	tracker.UnhookMouse();
 	CDialogEx::OnOK();
 }
 
@@ -541,7 +541,7 @@ void CFaceControllerMFCDlg::OnClose()
 	serializeChanges();
 	tracker.openFlag = false;
 	tracker.cap.release();
-	tracker.OnUnhookMouse();
+	tracker.UnhookMouse();
 	CDialogEx::OnClose();
 
 }
@@ -1173,6 +1173,7 @@ void CFaceControllerMFCDlg::readSerialized()
 		fs["velocitySlider"] >> tracker.velocitySlider;
 		fs["minFaceNeighbors"] >> tracker.minFaceNeighbors;
 		fs["editKeyboard"] >> ek; tracker.editKeyboard= ek.c_str(); mOptionsDlg.back_mEditKeyboard = tracker.editKeyboard;
+		fs["needEqualize"] >>  tracker.needEqualize;
 		fs["needAutostart"] >> needAutostart;
 		fs["minDistRatio"] >> tracker.minDistRatio;
 		fs["minCornersCount"] >> tracker.minCornersCount;
@@ -1207,7 +1208,7 @@ void CFaceControllerMFCDlg::resetDefaults()
 		fs["secSmile"] >> mMouseDlg->secSmile;
 		fs["secOneClick"] >> mMouseDlg->secOneClick;
 		fs["secDoubleClick"] >> mMouseDlg->secDoubleClick;
-		fs["secDwellStartTime"] >> mMouseDlg->secDwellStartTime;
+		fs["secDwellStartTime"] >> mMouseDlg->secDwellStartTime;;
 		fs["flipCameraFlag"] >> tracker.flipCameraFlag;
 		fs["showVideoFlag"] >> tracker.showVideoFlag;
 		fs["ewmaAlpha"] >> tracker.ewmaAlpha;
@@ -1215,6 +1216,7 @@ void CFaceControllerMFCDlg::resetDefaults()
 		fs["velocitySlider"] >> tracker.velocitySlider;
 		fs["minFaceNeighbors"] >> tracker.minFaceNeighbors;
 		fs["editKeyboard"] >> ek; tracker.editKeyboard = ek.c_str(); mOptionsDlg.back_mEditKeyboard = tracker.editKeyboard;
+		fs["needEqualize"] >> tracker.needEqualize;
 		fs["minDistRatio"] >> tracker.minDistRatio;
 		fs["minCornersCount"] >> tracker.minCornersCount;
 		fs["maxCornersCount"] >> tracker.maxCornersCount;

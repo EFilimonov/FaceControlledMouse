@@ -141,7 +141,7 @@ public:
 	void quickMouseDlg(bool detect);
 	void dwellDetecting(float dist);
 	void initiateStart();
-
+	void stopTimers();
 	void MouseInput();
 	void playClickSound();
 	HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);

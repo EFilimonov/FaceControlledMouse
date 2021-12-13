@@ -79,7 +79,7 @@ BOOL CAdvancedTab::OnInitDialog()
 	mSliderAcceleration.SetRange(10, 50);
 	mSliderFace.SetRange(2, 100);
 	mSliderFaceMaxNum.SetRange(10, 25);
-	mSliderFaceMinNum.SetRange(6, 15);
+	mSliderFaceMinNum.SetRange(3, 15);
 	mSliderCustom.SetRange(1, 10);
 	mSliderOnInput.SetRange(0.01, 100);
 
@@ -263,7 +263,7 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceMinnum(NMHDR* pNMHDR, LRESULT* pResul
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	UpdateData(TRUE);
 	iSliderMinNum = mSliderFaceMinNum.GetPos();
-	if (iSliderMinNum < 6) iSliderMinNum = 6;
+	if (iSliderMinNum < 3) iSliderMinNum = 3;
 	if (iSliderMinNum > iSliderMaxNum - 2) iSliderMinNum > iSliderMaxNum - 2;
 	str2.Format(L"%.*i", 0, iSliderMinNum);
 	str1 = "Min marks: ";

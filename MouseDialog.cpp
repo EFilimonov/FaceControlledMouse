@@ -526,12 +526,7 @@ void MouseDialog::dwellDetecting(float dist)
 	else
 	{
 		dwellTimer.stop();
-
 		changePie(NEUTRAL);
-
-		//if (mouseHookPause) mMouseDlg->changePie(mMouseDlg->PAUSE);
-		//else if (faceDetectedFlag)mMouseDlg->changePie(mMouseDlg->NEUTRAL);
-		//else mMouseDlg->changePie(mMouseDlg->LOSTFACE);
 		RedrawWindow();
 		dwellMouseLocked = true;
 	}
@@ -545,7 +540,7 @@ void MouseDialog::quickMouseDlg(bool detect)
 
 	{
 		// break if recent smile
-		if (!quickSmileUnlocked) return;
+//		if (!quickSmileUnlocked) return;
 
 		if (smileMouseLocked)
 		{
@@ -569,16 +564,17 @@ void MouseDialog::quickMouseDlg(bool detect)
 			changePie(NEUTRAL);
 			RedrawWindow();
 			smileMouseLocked = false;
-			quickSmileUnlocked = true;
+		//	quickSmileUnlocked = true;
 		}
 
 	}
 	else
 	{
+		mouseTimer.stop();
 		changePie(NEUTRAL);
 		RedrawWindow();
 		smileMouseLocked = true;
-		quickSmileUnlocked = true;
+		//quickSmileUnlocked = true;
 	}
 
 }
@@ -656,7 +652,6 @@ void MouseDialog::timerMouseDlg(bool detect)
 		}
 		mouseTimer.stop();
 		smileMouseLocked = true;
-
 		changePie(NEUTRAL);
 		RedrawWindow();
 	}
@@ -673,4 +668,4 @@ void MouseDialog::initiateStart()
 	if (mouseClick == DOUBLE_CL) secDuration = secToDoubleClickCancelDuration;
 	mouseTimer.start();
 }
-/**/
+

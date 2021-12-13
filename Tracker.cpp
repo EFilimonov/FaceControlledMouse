@@ -184,9 +184,10 @@ void PointsTracker::initiateTracker()
 
 bool PointsTracker::Tracking()
 {
-	
-//	inptext = "elapsedSeconds = " + std::to_string(moveLockTimer.elapsedSeconds());
 
+	//inptext = "smileAI= " + std::to_string(smileAIDetectedFlag) + "smileGeo= " + std::to_string(smileGeoDetectedFlag) + "smileMouseLocked = " + std::to_string(mMouseDlg->smileMouseLocked) + " elapsedSeconds = " + std::to_string(mMouseDlg->mouseTimer.elapsedSeconds());
+	smileAIDetectedFlag = false;
+	smileGeoDetectedFlag = false;
 
 	// set hook to detect mouse move
 	if (skipHook)
@@ -536,14 +537,11 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 		bool found = pointsMosse[i].facialTracker->update(_frame_gray, pointsMosse[i].facialRectangle);
 
 
-		pointsMosse[i].pointNew.x = pointsMosse[i].facialRectangle.x;
-		pointsMosse[i].pointNew.y = pointsMosse[i].facialRectangle.y;
-
-		pointsMosse[i].pointNew.x = pointsMosse[i].facialFilterX.filter(pointsMosse[i].pointNew.x);
-		pointsMosse[i].pointNew.y = pointsMosse[i].facialFilterY.filter(pointsMosse[i].pointNew.y);
+		pointsMosse[i].pointNew.x = pointsMosse[i].facialFilterX.filter(pointsMosse[i].facialRectangle.x);
+		pointsMosse[i].pointNew.y = pointsMosse[i].facialFilterY.filter(pointsMosse[i].facialRectangle.y);
 
 		cv::Point _newt(pointsMosse[i].pointNew.x + boxWidth / 2, pointsMosse[i].pointNew.y + boxHeight / 2);
-		cv::Point _oldt(pointsMosse[i].pointOld.x + boxWidth / 2, pointsMosse[i].pointOld.y + boxHeight / 2);
+		//cv::Point _oldt(pointsMosse[i].pointOld.x + boxWidth / 2, pointsMosse[i].pointOld.y + boxHeight / 2);
 		if (found)
 		{
 
@@ -570,14 +568,23 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 					continue;
 				}
 
-				pointsMosse[i].pointDelta = pointsMosse[i].pointNew - pointsMosse[i].pointOld;
+					pointsMosse[i].pointDelta = pointsMosse[i].pointNew - pointsMosse[i].pointOld;
 
-				//inptext = "dx = " + std::to_string(pointsT[1][i].x) + " dy  = " + std::to_string(pointsT[1][i].y);
-				dxTrackPointSum += pointsMosse[i].pointDelta.x;
-				dyTrackPointSum += pointsMosse[i].pointDelta.y;
+					if (abs(pointsMosse[i].pointDelta.x) > cropToTrack.width / 3 || abs(pointsMosse[i].pointDelta.y) > cropToTrack.height / 3)
+					{
+						pointsMosse[i].pointOld = pointsMosse[i].pointNew;
+						continue;
+					}
 
-				cv::arrowedLine(_frame, _newt, cv::Point(_oldt.x + pointsMosse[i].pointDelta.x * 10, _oldt.y + pointsMosse[i].pointDelta.y * 10), CORRECTIONCOLOR, 1, 8, 0);
-				activeTrackers++;
+					else
+					{
+						//inptext = "dx = " + std::to_string(pointsT[1][i].x) + " dy  = " + std::to_string(pointsT[1][i].y);
+						dxTrackPointSum += pointsMosse[i].pointDelta.x;
+						dyTrackPointSum += pointsMosse[i].pointDelta.y;
+						cv::arrowedLine(_frame, _newt, cv::Point(_newt.x + pointsMosse[i].pointDelta.x * 10, _newt.y + pointsMosse[i].pointDelta.y * 10), CORRECTIONCOLOR, 1, 8, 0);
+						activeTrackers++;
+					}
+
 			}
 			else pColor = CORRECTIONALERTCOLOR;
 		}

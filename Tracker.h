@@ -196,7 +196,7 @@ public:
 	bool isNonOptionsClientArea = false;
 	bool isNonMainClientArea = false;
 
-	bool needEqualize = true;
+	bool needEqualize = false;
 
 	CWnd* m_pMainWnd;
 	HWND hWnd;

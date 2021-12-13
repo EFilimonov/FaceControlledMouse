@@ -1394,7 +1394,7 @@
 #define chx14                           0x041d
 #define IDC_CHECK_2THREADS              1053
 #define chx15                           0x041e
-#define IDC_CHECK_SHOWVIDEO             1054
+//#define IDC_CHECK_SHOWVIDEO             1054
 #define IDC_CHECK_EQUALIZE              1054
 #define chx16                           0x041f
 #define rad1                            0x0420
