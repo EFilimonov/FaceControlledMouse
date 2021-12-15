@@ -50,6 +50,8 @@ void CMainTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_CANCEL, mStaticCancel);
 	DDX_Control(pDX, IDC_STATIC_TIMETODWELL, mStaticTimeToDwell);
 
+	DDX_Control(pDX, IDC_STATIC_MOUSESPEED, mStaticMouseSpeed);
+	DDX_Control(pDX, IDC_STATIC_DWELL, mStaticDwell);
 }
 
 
@@ -115,8 +117,8 @@ void CMainTab::OnNMCustomdrawSliderSpeedHorizontal(NMHDR* pNMHDR, LRESULT* pResu
 	if (fSliderSpeedHorisontal < 0.3) fSliderSpeedHorisontal = 0.3;
 
 	str2.Format(L"%.*f", 1, fSliderSpeedHorisontal);
-	str1 = "Horizontal mouse speed (X): ";
-	mStaticSpeedHorizontal.SetWindowTextW(str1 + str2);
+	//str1 = "Horizontal mouse speed (X): ";
+	mStaticSpeedHorizontal.SetWindowTextW(statictext4 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_SPEED_HORIZONTAL, 0);
 
@@ -133,8 +135,8 @@ void CMainTab::OnNMCustomdrawSliderSpeedVertical(NMHDR* pNMHDR, LRESULT* pResult
 	if (fSliderSpeedVertical < 0.3) fSliderSpeedVertical = 0.3;
 
 	str2.Format(L"%.*f", 1, fSliderSpeedVertical);
-	str1 = "Vertical mouse speed (Y): ";
-	mStaticSpeedVertical.SetWindowTextW(str1 + str2);
+	//statictext5 = "Vertical mouse speed (Y): ";
+	mStaticSpeedVertical.SetWindowTextW(statictext5 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_SPEED_VERTICAL, 0);
 
@@ -151,13 +153,14 @@ void CMainTab::OnNMCustomdrawSliderSmileAngle(NMHDR* pNMHDR, LRESULT* pResult)
 	if (iSliderSmileAngle < 60) iSliderSmileAngle = 60;
 
 	str2.Format(L"%.*i", 0, iSliderSmileAngle);
-	str1 = "Smile angle (geometric): ";
-	mStaticSmileAngle.SetWindowTextW(str1 + str2);
+	//str1 = "Smile angle (geometric): ";
+	mStaticSmileAngle.SetWindowTextW(statictext6 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_SMILE_ANGLE, 0);
 
 	*pResult = 0;
 }
+
 
 
 void CMainTab::OnNMCustomdrawSliderSmileSensitivity(NMHDR* pNMHDR, LRESULT* pResult)
@@ -168,8 +171,8 @@ void CMainTab::OnNMCustomdrawSliderSmileSensitivity(NMHDR* pNMHDR, LRESULT* pRes
 	if (iSliderSmileSensitivity < 2) iSliderSmileSensitivity = 2;
 
 	str2.Format(L"%.*i", 0, iSliderSmileSensitivity);
-	str1 = "Recognition threshold (AI): ";
-	mStaticSmileSensitivity.SetWindowTextW(str1 + str2);
+	//str1 = "Recognition threshold (AI): ";
+	mStaticSmileSensitivity.SetWindowTextW(statictext7 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_SMILE_SENSITIVITY, 0);
 
@@ -185,12 +188,14 @@ void CMainTab::OnNMCustomdrawSliderDwellDispl(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSliderDwellDispl < 0.1) fSliderDwellDispl = 0.1;
 
 	str2.Format(L"%.*f", 1, fSliderDwellDispl);
-	str1 = "Dwell displacement: ";
-	mStaticDwellDisp.SetWindowTextW(str1 + str2);
+	//str1 = "Dwell displacement: ";
+	mStaticDwellDisp.SetWindowTextW(statictext14 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_DWELL_DISPL, 0);
 	*pResult = 0;
 }
+
+
 
 void CMainTab::OnNMCustomdrawSliderQuickTime(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -200,13 +205,15 @@ void CMainTab::OnNMCustomdrawSliderQuickTime(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSliderQuickTime < 0.2) fSliderQuickTime = 0.2;
 
 	str2.Format(L"%.*f", 1, fSliderQuickTime);
-	str1 = "'Quick click' time, (sec): ";
-	mStaticQuickTime.SetWindowTextW(str1 + str2);
+//	str1 = "'Quick click' time, (sec): ";
+	mStaticQuickTime.SetWindowTextW(statictext8 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_QUICK_TIME, 0);
 	*pResult = 0;
 
 }
+
+
 
 void CMainTab::OnNMCustomdrawSliderDwellTime(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -216,12 +223,13 @@ void CMainTab::OnNMCustomdrawSliderDwellTime(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSliderDwellTime < 0.2) fSliderDwellTime = 0.2;
 
 	str2.Format(L"%.*f", 1, fSliderDwellTime);
-	str1 = "Dwell duration, (sec): ";
-	mStaticDwellTime.SetWindowTextW(str1 + str2);
+	//str1 = "Dwell duration, (sec): ";
+	mStaticDwellTime.SetWindowTextW(statictext16 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_DWELL_TIME, 0);
 	*pResult = 0;
 }
+
 
 
 void CMainTab::OnNMCustomdrawSliderTimetodwell(NMHDR* pNMHDR, LRESULT* pResult)
@@ -232,8 +240,8 @@ void CMainTab::OnNMCustomdrawSliderTimetodwell(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSliderTimeToDwell < 0.2) fSliderTimeToDwell = 0.2;
 
 	str2.Format(L"%.*f", 1, fSliderTimeToDwell);
-	str1 = "Time to dwell, (sec): ";
-	mStaticTimeToDwell.SetWindowTextW(str1 + str2);
+	//str1 = "Time to dwell, (sec): ";
+	mStaticTimeToDwell.SetWindowTextW(statictext15 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_TIMETODWELL, 0);
 	*pResult = 0;
@@ -249,12 +257,13 @@ void CMainTab::OnNMCustomdrawSlider1x(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSlider1x < 0.2) fSlider1x = 0.2;
 
 	str2.Format(L"%.*f", 1, fSlider1x);
-	str1 = "Waiting: ";
-	mStatic1x.SetWindowTextW(str1 + str2);
+	//str1 = "Waiting: ";
+	mStatic1x.SetWindowTextW(statictext10 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_1X, 0);
 	*pResult = 0;
 }
+
 
 
 void CMainTab::OnNMCustomdrawSlider2x(NMHDR* pNMHDR, LRESULT* pResult)
@@ -265,12 +274,13 @@ void CMainTab::OnNMCustomdrawSlider2x(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSlider2x < 0.2) fSlider2x = 0.2;
 
 	str2.Format(L"%.*f", 1, fSlider2x);
-	str1 = "1x click: ";
-	mStatic2x.SetWindowTextW(str1 + str2);
+	//str1 = "1x click: ";
+	mStatic2x.SetWindowTextW(statictext11 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_2X, 0);
 	*pResult = 0;
 }
+
 
 
 void CMainTab::OnNMCustomdrawSliderCancel(NMHDR* pNMHDR, LRESULT* pResult)
@@ -281,8 +291,8 @@ void CMainTab::OnNMCustomdrawSliderCancel(NMHDR* pNMHDR, LRESULT* pResult)
 	if (fSliderCancel < 0.2) fSliderCancel = 0.2;
 
 	str2.Format(L"%.*f", 1, fSliderCancel);
-	str1 = "2x click: ";
-	mStaticCancel.SetWindowTextW(str1 + str2);
+//	str1 = "2x click: ";
+	mStaticCancel.SetWindowTextW(statictext12 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_CANCEL, 0);
 	*pResult = 0;
@@ -306,3 +316,5 @@ void CMainTab::OnCancel()
 
 	//CDialogEx::OnCancel();
 }
+
+

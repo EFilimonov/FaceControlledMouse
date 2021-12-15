@@ -28,7 +28,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-
+	TC_ITEM TabItem;
 
 	CTabCtrl m_ctrTab;
 	CMainTab pCMainTab;
@@ -61,6 +61,9 @@ public:
 	int back_minFaceNeighbors;
 
 	CString back_mEditKeyboard;
+
+	LPWSTR statictext1 = L"Main";
+	LPWSTR statictext2 = L"Advanced";
 
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();

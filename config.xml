@@ -7,11 +7,11 @@
 <isQuickClick>1</isQuickClick>
 <horSensitivity>2.5000000000000000e+00</horSensitivity>
 <verSensitivity>3.</verSensitivity>
-<smilingTriggerAngle>98</smilingTriggerAngle>
+<smilingTriggerAngle>100</smilingTriggerAngle>
 <minNeighborsSmileDetector>100</minNeighborsSmileDetector>
 <dwellDisp>2.0999999344348907e-01</dwellDisp>
 <dwellDuration>1.</dwellDuration>
-<secQuickClick>8.9999997615814209e-01</secQuickClick>
+<secQuickClick>6.9999998807907104e-01</secQuickClick>
 <secSmile>5.0000000000000000e-01</secSmile>
 <secOneClick>5.0000000000000000e-01</secOneClick>
 <secDoubleClick>5.0000000000000000e-01</secDoubleClick>
@@ -30,4 +30,5 @@
 <maxCornersCount>16</maxCornersCount>
 <pauseTime>4.</pauseTime>
 <needSound>1</needSound>
+<langNum>0</langNum>
 </opencv_storage>

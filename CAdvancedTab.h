@@ -27,7 +27,7 @@ public:
 
 
 	#define UWM_UPDATE_OPTIONS (WM_APP+2)
-	CString str1, str2;
+	CString str2;
 	CWnd* m_pMainWnd;
 	HWND hWnd;
 
@@ -44,6 +44,8 @@ public:
 	CSliderCtrl mSliderFaceMaxNum;
 	CSliderCtrl mSliderCustom;
 	CSliderCtrl mSliderOnInput;
+
+	CComboBox mComboLanguage;
 
 	CStatic mStaticMinNum;
 	CStatic mStaticMaxNum;
@@ -69,6 +71,28 @@ public:
 	int iSliderMaxNum = 30;
 	int iSliderCustom = 10;
 	bool needAutostart = false;
+	int langNum = 0;
+
+	CString statictext17 = L"Flip mouse movement";
+	CString statictext18 = L"Mouse click sound";
+	CString statictext19 = L"Equalize brightness";
+	CString statictext20 = L"Autostart with Windows";
+	CString statictext21 = L"Language:";
+	CString statictext22 = L"Pause after touching a physical mouse: ";
+	CString statictext23 = L"Smoothing threshold: ";
+	CString statictext24 = L"% of marks moving in one direction: ";
+	CString statictext25 = L"Acceleration: ";
+	CString statictext26 = L"Face recognition";
+	CString statictext27 = L"Threshold (AI): ";
+	CString statictext28 = L"Cells/width: ";
+	CString statictext29 = L"Min marks: ";
+	CString statictext30 = L"Max marks: ";
+	CString statictext31 = L"Path to onscreen application";
+	CString statictext32 = L"Reset default settings";
+
+
+
+
 
 	afx_msg void OnBnClickedCheckFlipcamera();
 	afx_msg void OnNMCustomdrawSliderEwma(NMHDR* pNMHDR, LRESULT* pResult);
@@ -94,7 +118,6 @@ public:
 	void RegisterProgram();
 	LONG DeleteMyProgramForStartup(PCWSTR pszAppName, PCWSTR pathToExe, PCWSTR args);
 	void DeleteProgram();
-
-
-
+	afx_msg void OnCbnSelchangeComboLanguage();
+	CStatic mStaticLanguages;
 };

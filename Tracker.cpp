@@ -304,7 +304,7 @@ bool PointsTracker::Tracking()
 			faceDetectedFlag = false;
 			if (showVideoFlag)
 			{
-				tempinptext = "Face not detected";
+				tempinptext = facetext;
 				cv::putText(frame, tempinptext, cv::Point(40, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
 			}
 			// if face not found move rectancle with tracking points

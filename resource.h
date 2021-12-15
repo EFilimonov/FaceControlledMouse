@@ -1394,7 +1394,6 @@
 #define chx14                           0x041d
 #define IDC_CHECK_2THREADS              1053
 #define chx15                           0x041e
-//#define IDC_CHECK_SHOWVIDEO             1054
 #define IDC_CHECK_EQUALIZE              1054
 #define chx16                           0x041f
 #define rad1                            0x0420
@@ -1455,12 +1454,19 @@
 #define IDC_CHECK1                      1085
 #define IDC_CHECK_SOUND                 1085
 #define ico3                            0x043e
+#define IDC_COMBO_LANGUAGE              1086
 #define ico4                            0x043f
+#define IDC_STATIC_LANGUAGES            1087
 #define stc1                            0x0440
+#define IDC_STATIC_MOUSESPEED           1088
 #define stc2                            0x0441
+#define IDC_STATIC_DWELL                1089
 #define stc3                            0x0442
+#define IDC_STATIC_FACEREC              1090
 #define stc4                            0x0443
+#define IDC_STATIC_PATH                 1091
 #define stc5                            0x0444
+#define IDC_STATIC_LONGCLICK            1092
 #define stc6                            0x0445
 #define stc7                            0x0446
 #define stc8                            0x0447
@@ -1736,7 +1742,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        189
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1086
+#define _APS_NEXT_CONTROL_VALUE         1093
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

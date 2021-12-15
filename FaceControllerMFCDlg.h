@@ -113,6 +113,47 @@ public:
 	
 	bool needAutostart = false;
 
+	int langNum = 0;
+	int languagesNum = 0;
+	bool needInitLang = true;
+	cv::String statictextLanguage;
+	CString autostartStr = L"Autostart ";
+
+	cv::String statictext0;
+	cv::String statictext1;
+	cv::String statictext2;
+	cv::String statictext3;
+	cv::String statictext4;
+	cv::String statictext5;
+	cv::String statictext6;
+	cv::String statictext7;
+	cv::String statictext8;
+	cv::String statictext9;
+	cv::String statictext10;
+	cv::String statictext11;
+	cv::String statictext12;
+	cv::String statictext13;
+	cv::String statictext14;
+	cv::String statictext15;
+	cv::String statictext16;
+	cv::String statictext17;
+	cv::String statictext18;
+	cv::String statictext19;
+	cv::String statictext20;
+	cv::String statictext21;
+	cv::String statictext22;
+	cv::String statictext23;
+	cv::String statictext24;
+	cv::String statictext25;
+	cv::String statictext26;
+	cv::String statictext27;
+	cv::String statictext28;
+	cv::String statictext29;
+	cv::String statictext30;
+	cv::String statictext31;
+	cv::String statictext32;
+
+
 	// Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_FACECONTROLLERMFC_DIALOG };
@@ -170,6 +211,7 @@ public:
 	void serializeChanges();
 	void readSerialized();
 	void resetDefaults();
+	void changeLanguage(int _langNum);
 
 	void force1Click();
 
@@ -181,4 +223,5 @@ public:
 	void maximizeW();
 
 	std::string CFaceControllerMFCDlg::ExePath();
+	LPWSTR CFaceControllerMFCDlg::ConvertString(const std::string& instr);
 };

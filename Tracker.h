@@ -105,6 +105,7 @@ public:
 	Ewma ewmasmilingAnCalcCorrObj;
 
 	cv::String inptext;
+	cv::String facetext = "Face not detected";
 	cv::String tempinptext;
 
 #define POINTCOLOR cv::Scalar(0, 79, 241)

@@ -675,7 +675,13 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 	case UWM_UPDATE_OPTIONS:
 		switch (wParam)
 		{
-		case IDC_CHECK_SOUND:
+			case IDC_COMBO_LANGUAGE:
+				changeLanguage(mOptionsDlg.pCAdvancedTab.langNum);
+				langNum = mOptionsDlg.pCAdvancedTab.langNum;
+
+			return 0;
+
+			case IDC_CHECK_SOUND:
 				mMouseDlg->needSound = mOptionsDlg.pCAdvancedTab.needSound;
 			return 0;
 
@@ -848,7 +854,7 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 			if (isAutostart)
 			{
 				isAutostart = false;
-				GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(_T("Start"));
+				GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(autostartStr);
 				GetDlgItem(IDC_CHECK_AUTOSTART)->EnableWindow(0);
 				OnBnClickedStart();
 				KillTimer(ID_TIMER_1);
@@ -857,7 +863,7 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 			}
 			else
 			{
-				GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(_T("Start"));
+				GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(autostartStr);
 				KillTimer(ID_TIMER_1);
 				KillTimer(ID_TIMER_2);
 			}
@@ -889,11 +895,11 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				if (elapsedSeconds >= 0)
 				{
 					strAutostartSeconds.Format(_T("%d"), elapsedSeconds);
-					GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(_T("Start ") + strAutostartSeconds + _T(" s"));
+					GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(autostartStr + strAutostartSeconds + _T(" s"));
 				}
 				else
 				{
-					GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(_T("Start"));
+					GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(autostartStr);
 					pButton_start->SetBitmap(bmp_pause);
 				}
 				SetTimer(ID_TIMER_2, 1000, NULL);
@@ -927,7 +933,7 @@ void CFaceControllerMFCDlg::OnBnClickedCheckAutostart()
 	UpdateData(TRUE);
 	if (mCheckAutostart.GetCheck() == NULL)
 	{
-		GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(_T("Start"));
+		GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(autostartStr);
 		KillTimer(ID_TIMER_1);
 		KillTimer(ID_TIMER_2);
 		GetDlgItem(IDC_CHECK_AUTOSTART)->EnableWindow(0);
@@ -1138,6 +1144,7 @@ void CFaceControllerMFCDlg::serializeChanges()
 		fs << "maxCornersCount" << tracker.maxCornersCount;
 		fs << "pauseTime" << tracker.pauseTime;
 		fs << "needSound" << tracker.mMouseDlg->needSound;
+		fs << "langNum" << langNum;
 	}
 	fs.release();
 }
@@ -1180,6 +1187,7 @@ void CFaceControllerMFCDlg::readSerialized()
 		fs["maxCornersCount"] >> tracker.maxCornersCount;
 		fs["pauseTime"] >> tracker.pauseTime;
 		fs["needSound"] >> tracker.mMouseDlg->needSound;
+		fs["langNum"] >> langNum;
 	}
 	fs.release();
 }
@@ -1228,7 +1236,9 @@ void CFaceControllerMFCDlg::resetDefaults()
 
 void CFaceControllerMFCDlg::initSettings()
 {
-	// initiate controls
+	changeLanguage(langNum);
+	mOptionsDlg.pCAdvancedTab.mComboLanguage.SetCurSel(langNum);
+
 	mOptionsDlg.pCMainTab.mSliderSpeedHorisontal.SetPos(tracker.horSensitivity * 10);
 	mOptionsDlg.pCMainTab.mSliderSpeedVertical.SetPos(tracker.verSensitivity * 10);
 	mOptionsDlg.pCMainTab.mSliderSmileAngle.SetPos(tracker.smilingTriggerAngle);
@@ -1434,5 +1444,192 @@ void CFaceControllerMFCDlg::OnBnClickedButtonChrome()
 
 }
 
+
+LPWSTR CFaceControllerMFCDlg::ConvertString(const std::string& instr)
+{
+	// Assumes std::string is encoded in the current Windows ANSI codepage
+	int bufferlen = ::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), NULL, 0);
+
+	if (bufferlen == 0)
+	{
+		// Something went wrong. Perhaps, check GetLastError() and log.
+		return 0;
+	}
+
+	// Allocate new LPWSTR - must deallocate it later
+	LPWSTR widestr = new WCHAR[bufferlen + 1];
+
+	::MultiByteToWideChar(CP_ACP, 0, instr.c_str(), instr.size(), widestr, bufferlen);
+
+	// Ensure wide string is null terminated
+	widestr[bufferlen] = 0;
+
+	// Do something with widestr
+	return widestr;
+	//delete[] widestr;
+}
+
+void CFaceControllerMFCDlg::changeLanguage(int _langNum)
+{
+	CString str2;
+	std::string strStd = std::to_string(_langNum);
+	std::string istr;
+
+		cv::FileStorage fs(sPathToFolder + "languages.xml", cv::FileStorage::READ);
+		if (!fs.isOpened())
+		{
+			MessageBox(NULL, _T("Failed to open languages.xml file for reading!"), NULL);
+			return;
+		}
+		else
+		{
+			if(needInitLang)
+			{
+
+				fs["languagesNum"] >> languagesNum;
+
+				for (int i = 0; i <= languagesNum; i++)
+				{
+					istr = std::to_string(i);
+					fs["statictext" + istr] >> statictextLanguage;
+					str2 = statictextLanguage.c_str();
+					mOptionsDlg.pCAdvancedTab.mComboLanguage.AddString(str2);
+				}
+			 }
+			fs["statictext" + strStd + "0"] >> statictext0;
+			fs["statictext" + strStd + "1"] >> statictext1;
+			fs["statictext" + strStd + "2"] >> statictext2;
+			fs["statictext" + strStd + "3"] >> statictext3;
+			fs["statictext" + strStd + "4"] >> statictext4;
+			fs["statictext" + strStd + "5"] >> statictext5;
+			fs["statictext" + strStd + "6"] >> statictext6;
+			fs["statictext" + strStd + "7"] >> statictext7;
+			fs["statictext" + strStd + "8"] >> statictext8;
+			fs["statictext" + strStd + "9"] >> statictext9;
+			fs["statictext" + strStd + "10"] >> statictext10;
+			fs["statictext" + strStd + "11"] >> statictext11;
+			fs["statictext" + strStd + "12"] >> statictext12;
+			fs["statictext" + strStd + "13"] >> statictext13;
+			fs["statictext" + strStd + "14"] >> statictext14;
+			fs["statictext" + strStd + "15"] >> statictext15;
+			fs["statictext" + strStd + "16"] >> statictext16;
+			fs["statictext" + strStd + "17"] >> statictext17;
+			fs["statictext" + strStd + "18"] >> statictext18;
+			fs["statictext" + strStd + "19"] >> statictext19;
+			fs["statictext" + strStd + "20"] >> statictext20;
+			fs["statictext" + strStd + "21"] >> statictext21;
+			fs["statictext" + strStd + "22"] >> statictext22;
+			fs["statictext" + strStd + "23"] >> statictext23;
+			fs["statictext" + strStd + "24"] >> statictext24;
+			fs["statictext" + strStd + "25"] >> statictext25;
+			fs["statictext" + strStd + "26"] >> statictext26;
+			fs["statictext" + strStd + "27"] >> statictext27;
+			fs["statictext" + strStd + "28"] >> statictext28;
+			fs["statictext" + strStd + "29"] >> statictext29;
+			fs["statictext" + strStd + "30"] >> statictext30;
+			fs["statictext" + strStd + "31"] >> statictext31;
+			fs["statictext" + strStd + "32"] >> statictext32;
+		}
+		fs.release();
+		if (needInitLang || _langNum!= langNum)
+		{
+			//mOptionsDlg.pCMainTab.statictext3 = statictext3.c_str();
+			mOptionsDlg.pCMainTab.statictext4 = statictext4.c_str();
+			mOptionsDlg.pCMainTab.statictext5 = statictext5.c_str();
+			mOptionsDlg.pCMainTab.statictext6 = statictext6.c_str();
+			mOptionsDlg.pCMainTab.statictext7 = statictext7.c_str();
+			mOptionsDlg.pCMainTab.statictext8 = statictext8.c_str();
+			//mOptionsDlg.pCMainTab.statictext9 = statictext9.c_str();
+			mOptionsDlg.pCMainTab.statictext10 = statictext10.c_str();
+			mOptionsDlg.pCMainTab.statictext11 = statictext11.c_str();
+			mOptionsDlg.pCMainTab.statictext12 = statictext12.c_str();
+			//mOptionsDlg.pCMainTab.statictext13 = statictext13.c_str();
+			mOptionsDlg.pCMainTab.statictext14 = statictext14.c_str();
+			mOptionsDlg.pCMainTab.statictext15 = statictext15.c_str();
+			mOptionsDlg.pCMainTab.statictext16 = statictext16.c_str();
+
+			//mOptionsDlg.pCAdvancedTab.statictext17 = statictext17.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext18 = statictext18.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext19 = statictext19.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext20 = statictext20.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext21 = statictext21.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext22 = statictext22.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext23 = statictext23.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext24 = statictext24.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext25 = statictext25.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext26 = statictext26.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext27 = statictext27.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext28 = statictext28.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext29 = statictext29.c_str();
+			mOptionsDlg.pCAdvancedTab.statictext30 = statictext30.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext31 = statictext31.c_str();
+			//mOptionsDlg.pCAdvancedTab.statictext32 = statictext32.c_str();
+
+
+			mOptionsDlg.pCMainTab.GetDlgItem(IDC_STATIC_MOUSESPEED)->SetWindowText(ConvertString(statictext3));
+			mOptionsDlg.pCMainTab.GetDlgItem(IDC_STATIC_LONGCLICK)->SetWindowText(ConvertString(statictext9));
+			mOptionsDlg.pCMainTab.GetDlgItem(IDC_STATIC_DWELL)->SetWindowText(ConvertString(statictext13));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_CHECK_FLIPCAMERA)->SetWindowText(ConvertString(statictext17));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_CHECK_SOUND)->SetWindowText(ConvertString(statictext18));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_CHECK_EQUALIZE)->SetWindowText(ConvertString(statictext19));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_CHECK_AUTOSTART)->SetWindowText(ConvertString(statictext20));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_STATIC_LANGUAGES)->SetWindowText(ConvertString(statictext21));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_STATIC_FACEREC)->SetWindowText(ConvertString(statictext26));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_STATIC_PATH)->SetWindowText(ConvertString(statictext31));
+			mOptionsDlg.pCAdvancedTab.GetDlgItem(IDC_BUTTON_RESET)->SetWindowText(ConvertString(statictext32));
+			mOptionsDlg.GetDlgItem(IDC_APPLY)->SetWindowText(ConvertString(statictext1));
+			mOptionsDlg.GetDlgItem(IDCANCEL)->SetWindowText(ConvertString(statictext2));
+			//mOptionsDlg.statictext1 = ConvertString(statictext1);
+			//mOptionsDlg.statictext2 = ConvertString(statictext2);
+
+	/*	
+			TC_ITEM ti;
+			ti.mask = TCIF_TEXT;
+			ti.pszText = _T("whatever....");
+			CTabCtrl* pTabs = ((CPropertySheetEx*)mOptionsDlg.pCAdvancedTab.geGetTabControl();
+			pTabs->SetItem(1, &ti);
+
+			mOptionsDlg.TabItem.mask = TCIF_TEXT;
+			CString tabCurrentCString;
+			mOptionsDlg.TabItem.cchTextMax = 256;
+			tabCurrentCString = statictext1.c_str();
+			mOptionsDlg.TabItem.pszText = tabCurrentCString.GetBuffer(mOptionsDlg.TabItem.cchTextMax);
+			tabCurrentCString.ReleaseBuffer();
+			//mOptionsDlg.m_ctrTab.SetDlgItemTextW()	mOptionsDlg.TabItem.mask = TCIF_TEXT;
+			mOptionsDlg.TabItem.mask = TCIF_TEXT;
+
+			TCITEM tcItem{ 0 };
+			CString tabCurrentCString;
+			TCITEM tcItem;
+			mOptionsDlg.TabItem.mask = TCIF_TEXT;
+			tcItem.cchTextMax = 256;
+			tcItem.pszText = tabCurrentCString.GetBuffer(tcItem.cchTextMax);
+			BOOL result = currentTabCtrl->GetItem(tabCurSel, &tcItem);
+			tabCurrentCString.ReleaseBuffer();
+			
+			
+			
+			
+				TabItem.mask = TCIF_TEXT;
+	TabItem.pszText = _T("Main");
+	m_ctrTab.InsertItem(0, &TabItem);
+	TabItem.pszText = _T("Advanced");
+	m_ctrTab.InsertItem(1, &TabItem);
+			*/
+
+			//mOptionsDlg.TabItem.pszText = ConvertString(statictext1);
+			//mOptionsDlg.m_ctrTab.SetDlgItemTextW
+			//mOptionsDlg.TabItem.pszText = ConvertString(statictext2);
+			//mOptionsDlg.m_ctrTab.SetDlgItemTextW(1, mOptionsDlg.TabItem.pszText);
+
+
+
+			mOptionsDlg.pCAdvancedTab.RedrawWindow();
+			mOptionsDlg.RedrawWindow();
+		}
+
+		needInitLang = false;
+
+}
 
 

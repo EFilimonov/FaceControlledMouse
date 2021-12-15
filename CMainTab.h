@@ -63,6 +63,23 @@ public:
 	CStatic mStatic2x;
 	CStatic mStaticCancel;
 	CStatic mStaticTimeToDwell;
+	CStatic mStaticMouseSpeed;
+	CStatic mStaticDwell;
+
+	CString statictext3 = L"Mouse speed";
+	CString statictext4 = L"Horizontal mouse speed (X): ";
+	CString statictext5 = L"Vertical mouse speed (Y): ";
+	CString statictext6 = L"Smile angle (geometric): ";
+	CString statictext7 = L"Recognition threshold (AI): ";
+	CString statictext8 = L"Quick click time, (sec): ";
+	CString statictext9 = L"Long click timing, (sec)";
+	CString statictext10 = L"Waiting: ";
+	CString statictext11 = L"1x click: ";
+	CString statictext12 = L"2x clicks: ";
+	CString statictext13 = L"Dwell parameters";
+	CString statictext14 = L"Dwell displacement: ";
+	CString statictext15 = L"Time to dwell, (sec): ";
+	CString statictext16 = L"Dwell duration, (sec): ";
 
 	virtual BOOL OnInitDialog();
 	afx_msg void OnNMCustomdrawSliderSpeedHorizontal(NMHDR* pNMHDR, LRESULT* pResult);
@@ -78,4 +95,5 @@ public:
 	afx_msg void OnNMCustomdrawSliderTimetodwell(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual void OnOK();
 	virtual void OnCancel();
+
 };

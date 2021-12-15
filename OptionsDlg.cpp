@@ -123,11 +123,11 @@ BOOL OptionsDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	TC_ITEM TabItem;
+
 	TabItem.mask = TCIF_TEXT;
-	TabItem.pszText = _T("Main");
+	TabItem.pszText = statictext1;
 	m_ctrTab.InsertItem(0, &TabItem);
-	TabItem.pszText = _T("Advanced");
+	TabItem.pszText = statictext2;
 	m_ctrTab.InsertItem(1, &TabItem);
 
 	TabItem.mask = TCIF_PARAM;
