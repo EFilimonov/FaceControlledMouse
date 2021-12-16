@@ -120,7 +120,7 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	/// <returns></returns>
 
 	//sPathToFolder = "C:/Program Files (x86)/Face Controlled Mouse/";
-	//sPathToFolder = "";
+	sPathToFolder = "";
 
 	readSerialized();
 
