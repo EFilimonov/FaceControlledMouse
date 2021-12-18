@@ -28,11 +28,11 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHECK_FLIPCAMERA, mCheckFlipCamera);
 	DDX_Control(pDX, IDC_SLIDER_EWMA, mSliderEWMA);
-	DDX_Control(pDX, IDC_SLIDER_MARKS, mSliderMarks);
+	//	DDX_Control(pDX, IDC_SLIDER_MARKS, mSliderMarks);
 	DDX_Control(pDX, IDC_SLIDER_ACCELERATION, mSliderAcceleration);
 	DDX_Control(pDX, IDC_SLIDER_FACE_SENSITIVITY, mSliderFace);
 	DDX_Control(pDX, IDC_STATIC_EWMA, mStaticEWMA);
-	DDX_Control(pDX, IDC_STATIC_MARKS, mStaticMarks);
+	//	DDX_Control(pDX, IDC_STATIC_MARKS, mStaticMarks);
 	DDX_Control(pDX, IDC_STATIC_ACCELERATION, mStaticAcceleration);
 	DDX_Control(pDX, IDC_STATIC_FACE_SENSITIVITY, mStaticFace);
 	DDX_Text(pDX, IDC_EDIT_KEYBOARD, mEditKeyboard);
@@ -49,13 +49,14 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_SOUND, mCheckSound);
 	DDX_Control(pDX, IDC_COMBO_LANGUAGE, mComboLanguage);
 	DDX_Control(pDX, IDC_STATIC_LANGUAGES, mStaticLanguages);
+	DDX_Control(pDX, IDC_CHECK_THREADING, mCheckThreading);
 }
 
 
 BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_FLIPCAMERA, &CAdvancedTab::OnBnClickedCheckFlipcamera)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_EWMA, &CAdvancedTab::OnNMCustomdrawSliderEwma)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_MARKS, &CAdvancedTab::OnNMCustomdrawSliderMarks)
+//	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_MARKS, &CAdvancedTab::OnNMCustomdrawSliderMarks)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_ACCELERATION, &CAdvancedTab::OnNMCustomdrawSliderAcceleration)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_SENSITIVITY, &CAdvancedTab::OnNMCustomdrawSliderFaceSensitivity)
 	ON_BN_CLICKED(IDC_BUTTON_RESET, &CAdvancedTab::OnBnClickedButtonReset)
@@ -69,6 +70,7 @@ BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_ONINPUT, &CAdvancedTab::OnNMCustomdrawSliderOninput)
 	ON_BN_CLICKED(IDC_CHECK_SOUND, &CAdvancedTab::OnBnClickedCheckSound)
 	ON_CBN_SELCHANGE(IDC_COMBO_LANGUAGE, &CAdvancedTab::OnCbnSelchangeComboLanguage)
+	ON_BN_CLICKED(IDC_CHECK_THREADING, &CAdvancedTab::OnBnClickedCheckThreading)
 END_MESSAGE_MAP()
 
 
@@ -78,7 +80,7 @@ BOOL CAdvancedTab::OnInitDialog()
 	CDialogEx::OnInitDialog();
 	hWnd = AfxGetApp()->m_pMainWnd->m_hWnd;
 	mSliderEWMA.SetRange(1, 60);
-	mSliderMarks.SetRange(30, 98);
+//	mSliderMarks.SetRange(30, 98);
 	mSliderAcceleration.SetRange(10, 50);
 	mSliderFace.SetRange(2, 100);
 	mSliderFaceMaxNum.SetRange(10, 25);
@@ -206,7 +208,7 @@ void CAdvancedTab::OnNMCustomdrawSliderEwma(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-
+/*
 void CAdvancedTab::OnNMCustomdrawSliderMarks(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
@@ -221,7 +223,7 @@ void CAdvancedTab::OnNMCustomdrawSliderMarks(NMHDR* pNMHDR, LRESULT* pResult)
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_MARKS, 0);
 	*pResult = 0;
-}
+}*/
 
 
 void CAdvancedTab::OnNMCustomdrawSliderAcceleration(NMHDR* pNMHDR, LRESULT* pResult)
@@ -433,4 +435,26 @@ void CAdvancedTab::OnCbnSelchangeComboLanguage()
 	UpdateData(TRUE);
 	langNum = mComboLanguage.GetCurSel();
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_COMBO_LANGUAGE, 0);
+}
+
+
+void CAdvancedTab::OnBnClickedCheckThreading()
+{
+	//enableMultithreading
+	// TODO: Add your control notification handler code here
+	/*
+
+	if (mCheckSound.GetCheck() == NULL) needSound = false;
+	else needSound = true;
+
+	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_SOUND, 0);
+	
+	*/
+		UpdateData(TRUE);
+		if (mCheckThreading.GetCheck() == NULL) enableMultithreading = false;
+		else enableMultithreading = true;
+
+		::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_THREADING, 0);
+		
+
 }

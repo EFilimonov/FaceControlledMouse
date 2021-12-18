@@ -68,8 +68,9 @@ BOOL CFaceControllerMFCApp::InitInstance()
 	//MouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInstance, 0);
 	//SetWindowsHook()
 	CFaceControllerMFCDlg mControllerdlg;
-
 	MouseDialog mMouseDlg;
+	PointsTracker tracker;
+	mControllerdlg.trackerPtr = &tracker;
 
 	if (!mMouseDlg.GetSafeHwnd()) // Have we created the dialog?
 	{
@@ -95,20 +96,24 @@ BOOL CFaceControllerMFCApp::InitInstance()
 		HRGN hrgnMain = CreateRoundRectRgn(0, 0, (int)mMouseDlg.pieSize, (int)mMouseDlg.pieSize, (int)mMouseDlg.pieSize, (int)mMouseDlg.pieSize);
 
 		mMouseDlg.SetWindowRgn(hrgnMain, true);
+
+
 	}
 
 	mControllerdlg.mMouseDlg = &mMouseDlg;
-	mControllerdlg.tracker.mMouseDlg = &mMouseDlg;
+	mControllerdlg.trackerPtr->mMouseDlg = &mMouseDlg;
 	mControllerdlg.mOptionsDlg.mMouseDlg = &mMouseDlg;
 
-
+	mControllerdlg.pDlg = &mControllerdlg;
 
 	m_pMainWnd = &mControllerdlg;
 
 	INT_PTR nResponse;
 
-//	if (!mControllerdlg.GetSafeHwnd()) // Have we created the dialog?
-//	{
+	if (!mControllerdlg.GetSafeHwnd())
+	{
+		// Have we created the dialog?
+
 
 		nResponse = mControllerdlg.DoModal();
 
@@ -123,6 +128,7 @@ BOOL CFaceControllerMFCApp::InitInstance()
 			0, 0, // cx, cy => width & height of the window in pixels
 			SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW  // The window sizing and positioning flags.
 		);
+	}
 
 		//mControllerdlg.ShowWindow(SW_SHOW);
 //	}

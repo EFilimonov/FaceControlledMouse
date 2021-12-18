@@ -63,7 +63,7 @@ void OptionsDlg::OnClose()
 	pCAdvancedTab.flipCameraFlag = back_flipCameraFlag;
 	pCAdvancedTab.needEqualize = back_needEqualize;
 	pCAdvancedTab.fSliderEWMA = back_fSliderEWMA;
-	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
+//	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
 	pCAdvancedTab.fSliderAcceleration = back_fSliderAcceleration;
 	pCAdvancedTab.iSliderFace = back_iSliderFace;
 	pCAdvancedTab.mEditKeyboard = back_mEditKeyboard;
@@ -107,7 +107,7 @@ void OptionsDlg::OnBnClickedCancel()
 	pCAdvancedTab.flipCameraFlag = back_flipCameraFlag;
 	pCAdvancedTab.needEqualize = back_needEqualize;
 	pCAdvancedTab.fSliderEWMA = back_fSliderEWMA;
-	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
+//	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
 	pCAdvancedTab.fSliderAcceleration = back_fSliderAcceleration;
 	pCAdvancedTab.iSliderFace = back_iSliderFace;
 	pCAdvancedTab.mEditKeyboard = back_mEditKeyboard;

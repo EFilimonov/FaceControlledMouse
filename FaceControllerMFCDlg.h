@@ -14,9 +14,6 @@
 #include <opencv2/highgui/highgui_c.h>
 
 
-#pragma once
-
-
 // CFaceControllerMFCDlg dialog
 class CFaceControllerMFCDlg : public CDialogEx
 {
@@ -25,7 +22,8 @@ public:
 	CFaceControllerMFCDlg(CWnd* pParent = nullptr);	// standard constructor
 	OptionsDlg mOptionsDlg;
 	MouseDialog* mMouseDlg;
-	PointsTracker tracker;
+	PointsTracker* trackerPtr;
+	CFaceControllerMFCDlg* pDlg;
 
 	TCHAR pathToFolder[MAX_PATH];
 	std::string sPathToFolder;
@@ -163,6 +161,7 @@ public:
 
 	bool needTrackerInitiate = true;
 	bool unlockedStartDragFlag = true;
+	bool enableMultithreading = false;
 	POINT startCursorPos;
 	int wdx, wdy;
 	POINT cursorPos;
@@ -188,7 +187,7 @@ public:
 
 	LRESULT OnOptionsUpdate(WPARAM wparam, LPARAM lparam);
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
-	BOOL PreTranslateMessage(MSG* pMsg);
+//	BOOL PreTranslateMessage(MSG* pMsg);
 
 	afx_msg void OnBnClickedStart();
 	afx_msg void OnBnClickedOk();
@@ -221,6 +220,28 @@ public:
 	void resizeCVWindow();
 	void minimizeW();
 	void maximizeW();
+
+	void MouseActions();
+	void TrackingActions();
+
+//	UINT __cdecl RecExtractThreadCtrlFunc(LPVOID pParam);
+
+
+	static void thread_proc1(void* param) {
+		CFaceControllerMFCDlg* pthis = (CFaceControllerMFCDlg*)param;
+		if (pthis != 0)
+		{
+			pthis->MouseActions();
+		}
+	}
+
+	static void thread_proc2(void* param) {
+		CFaceControllerMFCDlg* pthis = (CFaceControllerMFCDlg*)param;
+		if (pthis != 0)
+		{
+			pthis->TrackingActions();
+		}
+	}	/**/
 
 	std::string CFaceControllerMFCDlg::ExePath();
 	LPWSTR CFaceControllerMFCDlg::ConvertString(const std::string& instr);

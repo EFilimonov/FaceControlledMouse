@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <opencv_storage>
-<languagesNum>1</languagesNum>
+<languagesNum>2</languagesNum>
 <statictext0>"English"</statictext0>
 <statictext00>""</statictext00>
 <statictext01>"Apply"</statictext01>
@@ -26,7 +26,7 @@
 <statictext021>"Language:"</statictext021>
 <statictext022>"Pause after touching a physical mouse: "</statictext022>
 <statictext023>"Smoothing threshold: "</statictext023>
-<statictext024>"% of marks moving in one direction: "</statictext024>
+<statictext024>"Enable OpenCV multithreading"</statictext024>
 <statictext025>"Acceleration: "</statictext025>
 <statictext026>"Face recognition"</statictext026>
 <statictext027>"Threshold (AI): "</statictext027>
@@ -60,7 +60,7 @@
 <statictext121>"Язык: "</statictext121>
 <statictext122>"Пауза после касания мыши: "</statictext122>
 <statictext123>"Сглаживание движений: "</statictext123>
-<statictext124>"% точек, движущихся в одну сторону: "</statictext124>
+<statictext124>"Включить мультипоточность OpenCV"</statictext124>
 <statictext125>"Ускорение: "</statictext125>
 <statictext126>"Распознавание лица"</statictext126>
 <statictext127>"Порог распозн. (AI): "</statictext127>
@@ -69,4 +69,38 @@
 <statictext130>"Макс. точек: "</statictext130>
 <statictext131>"Путь к экранному приложению"</statictext131>
 <statictext132>"Сбросить настройки"</statictext132>
+<statictext2>"Українська"</statictext2>
+<statictext20>""</statictext20>
+<statictext21>"Застосувати"</statictext21>
+<statictext22>"Скасувати"</statictext22>
+<statictext23>"Швидкість миші"</statictext23>
+<statictext24>"Горизонтальна швидкість (X): "</statictext24>
+<statictext25>"Вертикальна швидкість (Y): "</statictext25>
+<statictext26>"Кут посмішки (геометричний) : "</statictext26>
+<statictext27>"Поріг розпізнавання (AI): "</statictext27>
+<statictext28>"Час до швидкого кліку, (сек): "</statictext28>
+<statictext29>"Таймінг довгого кліку, (сек)"</statictext29>
+<statictext210>"Пауза: "</statictext210>
+<statictext211>"1x клік: "</statictext211>	
+<statictext212>"2x кліки: "</statictext212>	
+<statictext213>"Параметри затримки"</statictext213>
+<statictext214>"Зсув: "</statictext214>
+<statictext215>"Пауза, (сек): "</statictext215>
+<statictext216>"Тривалість, (сек): "</statictext216>
+<statictext217>"Віддзеркалити по горизонталі"</statictext217>
+<statictext218>"Звук кліку миші"</statictext218>
+<statictext219>"Вирівняти яскравість"</statictext219>
+<statictext220>"Автозапуск із Windows"</statictext220>
+<statictext221>"Мова: "</statictext221>
+<statictext222>"Пауза після торкання миші: "</statictext222>
+<statictext223>"Згладжування рухів: "</statictext223>
+<statictext224>"Включити мультипоточність OpenCV"</statictext224>
+<statictext225>"Прискорення: "</statictext225>
+<statictext226>"Розпізнавання обличчя"</statictext226>
+<statictext227>"Поріг розпізн. (AI): "</statictext227>
+<statictext228>"Сітка / ширина: "</statictext228>
+<statictext229>"Мін. точок: "</statictext229>
+<statictext230>"Макс. точок: "</statictext230>
+<statictext231>"Шлях до екранної програми"</statictext231>
+<statictext232>"Скинути налаштування"</statictext232>
 </opencv_storage>

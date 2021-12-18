@@ -51,6 +51,8 @@ public:
 	bool isNonMainClientArea = false;
 	bool isNonOptionsClientArea = false;
 	bool isTimer2Clicks = false;
+	bool mainSelfDragflag = false;
+	bool optSelfDragflag = false;
 
 	enum ClicksFaces
 	{
@@ -71,10 +73,12 @@ public:
 		ONE_CL,//ORANGE
 		DOUBLE_CL,//DEEP ORANGE
 		RIGHT_CL,//RED
-		DRAG,
-		DO_NOTHING
+		DRAG//,
+		//DO_NOTHING
 	};
 
+	bool doNothing = true;
+	bool doubleClick = false;
 	Clicks mouseClick = ONE_CL;
 	Clicks prevRightClick = ONE_CL;
 
@@ -133,9 +137,9 @@ protected:
 public:
 	afx_msg void OnPaint();
 	virtual BOOL OnInitDialog();
-	void rotatePie(double elapsedSeconds, bool isDwell, bool isQuick, float _secSmile, float _sec1x, float _sec2x, float _secAll);
+	void rotatePie(double elapsedSeconds, bool isDwell, bool isQuick);
 	void changePie(ClicksFaces _click);
-	void moveMouseDlg(bool onTop);
+	void moveMouseDlg(int _X, int _Y);
 
 	void timerMouseDlg(bool detect);
 	void quickMouseDlg(bool detect);

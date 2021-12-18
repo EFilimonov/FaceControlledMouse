@@ -146,7 +146,6 @@ void PointsTracker::GetScreenRatio()
 	captureVertical = (float)cap.get(cv::CAP_PROP_FRAME_HEIGHT);
 
 }
-
 void PointsTracker::initiateTracker()
 {
 	GetScreenRatio();
@@ -155,7 +154,6 @@ void PointsTracker::initiateTracker()
 
 	cursorPos.x = 0;
 	cursorPos.y = 0;
-	oldCursorPos = cursorPos;
 
 
 	termcrit.type = CV_TERMCRIT_ITER | CV_TERMCRIT_EPS;
@@ -182,10 +180,14 @@ void PointsTracker::initiateTracker()
 
 }
 
+
 bool PointsTracker::Tracking()
 {
 
-	//inptext = "smileAI= " + std::to_string(smileAIDetectedFlag) + "smileGeo= " + std::to_string(smileGeoDetectedFlag) + "smileMouseLocked = " + std::to_string(mMouseDlg->smileMouseLocked) + " elapsedSeconds = " + std::to_string(mMouseDlg->mouseTimer.elapsedSeconds());
+
+{ 
+//	inptext = "elapsedSec= " + std::to_string(mMouseDlg->elapsedSeconds) + "secToOneClick= " + std::to_string(mMouseDlg->secToOneClickDuration) + "secToDoubleClick = " + std::to_string(mMouseDlg->secToDoubleClickDuration) + " allDuration = " + std::to_string(mMouseDlg->secDuration);
+	// rotatePie(elapsedSeconds, false, false, secSmile, secToOneClickDuration, secToDoubleClickDuration, secDuration);
 	smileAIDetectedFlag = false;
 	smileGeoDetectedFlag = false;
 
@@ -197,6 +199,7 @@ bool PointsTracker::Tracking()
 	}
 	else if (isGlobalMouseMove)// if physical mouse moving
 	{
+		mMouseDlg->ShowWindow(SW_HIDE);
 			// stop monitoring dwell
 			mMouseDlg->dwellTimer.stop();
 			// set timer
@@ -213,7 +216,7 @@ bool PointsTracker::Tracking()
 
 	if (moveLockTimer.elapsedSeconds() > 0)
 	{
-		mMouseDlg->changePie(mMouseDlg->PAUSE);
+		
 		OnUnhookMouse();
 	}
 
@@ -221,6 +224,7 @@ bool PointsTracker::Tracking()
 	{
 		mouseHookPause = false;
 		mMouseDlg->changePie(mMouseDlg->NEUTRAL);
+		if (!mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_SHOW);
 		moveLockTimer.stop();
 		if (!buttonStop) turnOffClick = false;
 	}
@@ -259,6 +263,8 @@ bool PointsTracker::Tracking()
 		return false;
 	}
 
+
+
 	//if (flipCameraFlag)cv::flip(frame, frame, 1);
 
 	// Convert input to greyscale 
@@ -268,6 +274,8 @@ bool PointsTracker::Tracking()
 	frontalFaceDetector.detectMultiScale(frame_gray, faces, 1.1, minFaceNeighbors, cv::CASCADE_FIND_BIGGEST_OBJECT | cv::CASCADE_DO_CANNY_PRUNING, cv::Size(65, 65));
 
 	try {
+
+
 		// if face detected
 		if (!faces.empty())
 		{
@@ -308,8 +316,8 @@ bool PointsTracker::Tracking()
 				cv::putText(frame, tempinptext, cv::Point(40, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
 			}
 			// if face not found move rectancle with tracking points
-			cropToTrack.x += dxTrackPoint;
-			cropToTrack.y += dyTrackPoint;
+			cropToTrack.x += dMouse.x;
+			cropToTrack.y += dMouse.y;
 
 			if (needEqualize)
 			{
@@ -337,11 +345,11 @@ bool PointsTracker::Tracking()
 			frame_gray.copyTo(equalizerROI);
 		}
 
-		//imshow("view2", frame_gray);
-		//int key2 = cv::waitKey(20);
+
 
 		if (needToTrackerInit)
 		{
+			//AfxMessageBox(L"");
 			cv::Mat mask(frame_gray.size(), CV_8UC1, cv::Scalar(0));
 			mask(cropToTrack).setTo(cv::Scalar(255));
 
@@ -358,6 +366,7 @@ bool PointsTracker::Tracking()
 
 				if (showVideoFlag) imshow("view", frame);
 				int key2 = cv::waitKey(20);
+
 				return true;
 			}
 
@@ -368,6 +377,8 @@ bool PointsTracker::Tracking()
 		boxWidth = (float)cropToTrack.width / boxRatio;
 		boxHeight = (float)cropToTrack.height / boxRatio;
 
+
+
 		if (needToTrackerInit)
 		{
 			activeTrackers = pointsT.size();
@@ -377,12 +388,25 @@ bool PointsTracker::Tracking()
 
 			skipframe = true;
 
+			//trackingRectangle.x =
+
+			trackingRectangle.x = cropToTrack.x - cropToTrack.width * 0.5;
+			trackingRectangle.y = cropToTrack.y - cropToTrack.height * 0.5;
+
+			trackingRectangle.width = (int)cropToTrack.width * 2;
+			trackingRectangle.height = (int)cropToTrack.height * 2;
+
+			trackingRectangle = calculateCrop(trackingRectangle, frame_gray.size());
+
+
 			for (int i = 0; i < activeTrackers; i++)if (!pointsT.empty())
-				initFacialTracker(i, frame_gray);
+				initFacialTracker(i, frame_gray(trackingRectangle));
 
 		}
 
-		calculateMosseTrackers(frame, frame_gray);
+
+		calculateMosseTrackers(frame, frame_gray(trackingRectangle));
+
 
 		if (activeTrackers < minCornersCount)
 		{
@@ -485,13 +509,23 @@ bool PointsTracker::Tracking()
 	int key2 = cv::waitKey(27);
 
 
-	if (!turnOffClick && !detectDwellFlag)
+	if (!mouseHookPause)
 	{
-		if (isQuickClick) mMouseDlg->quickMouseDlg(smileAIDetectedFlag || smileGeoDetectedFlag);
-		else mMouseDlg->timerMouseDlg(smileAIDetectedFlag || smileGeoDetectedFlag);
+		if (detectDwellFlag && faceInitiatedFlag)
+		{
+			//disable moving if face changed
+			if (mds < cropToTrack.width) mMouseDlg->dwellDetecting(mds);
+		}
+		else
+		{
+			if (isQuickClick) mMouseDlg->quickMouseDlg(smileAIDetectedFlag || smileGeoDetectedFlag);
+			else mMouseDlg->timerMouseDlg(smileAIDetectedFlag || smileGeoDetectedFlag);
+		}
 	}
 
+
 	OnUnhookMouse();
+	}
 	return true;
 }
 
@@ -499,6 +533,8 @@ bool PointsTracker::Tracking()
 bool PointsTracker::initFacialTracker(int i, cv::Mat& _frame_gray)
 {
 
+	pointsT[i].x -= trackingRectangle.x;
+	pointsT[i].y -= trackingRectangle.y;
 	pointsMosse[i].facialTracker = cv::legacy::TrackerMOSSE::create();
 	boxWidth = (float)cropToTrack.width / boxRatio;
 	boxHeight = (float)cropToTrack.height / boxRatio;
@@ -541,6 +577,8 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 		pointsMosse[i].pointNew.y = pointsMosse[i].facialFilterY.filter(pointsMosse[i].facialRectangle.y);
 
 		cv::Point _newt(pointsMosse[i].pointNew.x + boxWidth / 2, pointsMosse[i].pointNew.y + boxHeight / 2);
+		_newt.x += trackingRectangle.x;
+		_newt.y += trackingRectangle.y;
 		//cv::Point _oldt(pointsMosse[i].pointOld.x + boxWidth / 2, pointsMosse[i].pointOld.y + boxHeight / 2);
 		if (found)
 		{
@@ -549,79 +587,79 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 				_newt.x <= cropToTrack.x + cropToTrack.width &&
 				_newt.y >= cropToTrack.y &&
 				_newt.y <= cropToTrack.y + cropToTrack.height)
-			{
-				pColor = CORRECTIONCOLOR;
-
-				if (pointsMosse[i].pointNew.x == 0 && pointsMosse[i].pointNew.y == 0)
 				{
-					pointsMosse[i].pointDelta.x = 0.0f;
-					pointsMosse[i].pointDelta.y = 0.0f;
+					pColor = CORRECTIONCOLOR;
 
-					pointsMosse[i].pointOld = pointsMosse[i].pointNew;
-					continue;
-				}
-
-				if (pointsMosse[i].pointOld.x == 0 && pointsMosse[i].pointOld.y == 0)
-				{
-					pointsMosse[i].pointDelta.x = 0.0f;
-					pointsMosse[i].pointDelta.y = 0.0f;
-					continue;
-				}
-
-					pointsMosse[i].pointDelta = pointsMosse[i].pointNew - pointsMosse[i].pointOld;
-
-					if (abs(pointsMosse[i].pointDelta.x) > cropToTrack.width / 3 || abs(pointsMosse[i].pointDelta.y) > cropToTrack.height / 3)
+					if (pointsMosse[i].pointNew.x == 0 && pointsMosse[i].pointNew.y == 0)
 					{
+						pointsMosse[i].pointDelta.x = 0.0f;
+						pointsMosse[i].pointDelta.y = 0.0f;
+
 						pointsMosse[i].pointOld = pointsMosse[i].pointNew;
 						continue;
 					}
 
-					else
+					if (pointsMosse[i].pointOld.x == 0 && pointsMosse[i].pointOld.y == 0)
 					{
-						//inptext = "dx = " + std::to_string(pointsT[1][i].x) + " dy  = " + std::to_string(pointsT[1][i].y);
-						dxTrackPointSum += pointsMosse[i].pointDelta.x;
-						dyTrackPointSum += pointsMosse[i].pointDelta.y;
-						cv::arrowedLine(_frame, _newt, cv::Point(_newt.x + pointsMosse[i].pointDelta.x * 10, _newt.y + pointsMosse[i].pointDelta.y * 10), CORRECTIONCOLOR, 1, 8, 0);
-						activeTrackers++;
+						pointsMosse[i].pointDelta.x = 0.0f;
+						pointsMosse[i].pointDelta.y = 0.0f;
+						continue;
 					}
 
-			}
-			else pColor = CORRECTIONALERTCOLOR;
-		}
-		else pColor = CORRECTIONALERTCOLOR;
-		cv::circle(_frame, _newt, 3, pColor, cv::FILLED);
-		pointsMosse[i].pointOld = pointsMosse[i].pointNew;
-	}
+						pointsMosse[i].pointDelta = pointsMosse[i].pointNew - pointsMosse[i].pointOld;
 
-	if(!skipframe && !mouseHookPause)
-	{ 
-		if (activeTrackers > minCornersCount)
-		{
-			resultantLenth = dxTrackPointSum * dxTrackPointSum + dyTrackPointSum * dyTrackPointSum;
-			addLenth = 0;
-			sumVx = 0;
-			sumVy = 0;
+						if (abs(pointsMosse[i].pointDelta.x) > cropToTrack.width  || abs(pointsMosse[i].pointDelta.y) > cropToTrack.height )
+						{
+							pointsMosse[i].pointOld = pointsMosse[i].pointNew;
+							continue;
+						}
 
-			for (int i = 0; i < pointsMosse.size(); i++)
+						else
+						{
+
+							//inptext = "dx = " + std::to_string(pointsT[1][i].x) + " dy  = " + std::to_string(pointsT[1][i].y);
+							dxTrackPointSum += pointsMosse[i].pointDelta.x;
+							dyTrackPointSum += pointsMosse[i].pointDelta.y;
+							if (showVideoFlag)
+							{
+								if (pointsMosse[i].pointDelta.x > -boxWidth / 3 && pointsMosse[i].pointDelta.y > -boxHeight / 3 )
+								cv::arrowedLine(_frame, _newt, cv::Point(_newt.x + pointsMosse[i].pointDelta.x * 10, _newt.y + pointsMosse[i].pointDelta.y * 10), CORRECTIONCOLOR, 1, 8, 0);
+							}
+						
+							activeTrackers++;
+						}
+
+				}
+
+			else
 			{
-				sumVx = dxTrackPointSum + pointsMosse[i].pointDelta.x;
-				sumVy = dyTrackPointSum + pointsMosse[i].pointDelta.y;
-				if ((sumVx * sumVx + sumVy * sumVy) >= resultantLenth) addLenth++;
-			}
-
-			if (addLenth > accumMoveRatio * (float)activeTrackers)
-			{
-				dMouse.x = (float)dxTrackPointSum / activeTrackers;
-				dMouse.y = (float)dyTrackPointSum / activeTrackers;
-				if (flipCameraFlag) dMouse.x = -dMouse.x;
-				calclMousePos(dMouse, cropToTrack.width);
+				pColor = CORRECTIONALERTCOLOR;
 			}
 
 		}
 		else
 		{
-			needToTrackerInit = true;
+			pointsMosse.erase(pointsMosse.begin() + i);
+			i--;
+			continue;
 		}
+		if (showVideoFlag)cv::circle(_frame, _newt, 3, pColor, cv::FILLED);
+		cv::rectangle(frame, trackingRectangle, CORRECTIONCOLOR, 2, 8, 0);
+		pointsMosse[i].pointOld = pointsMosse[i].pointNew;
+	}
+
+	if(!skipframe && !mouseHookPause)
+	{ 
+		
+		
+		dMouse.x = (float)dxTrackPointSum / activeTrackers;
+		dMouse.y = (float)dyTrackPointSum / activeTrackers;
+		if (flipCameraFlag) dMouse.x = -dMouse.x;
+				//dMouseOld = dMouse;
+		calclMousePos(dMouse, cropToTrack.width);
+		mds = sqrt(dMouse.x * dMouse.x + dMouse.y * dMouse.y);
+
+		if (activeTrackers < minCornersCount) needToTrackerInit = true;
 
 	}
 	skipframe = false;
@@ -631,22 +669,10 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 
 void PointsTracker::calclMousePos(cv::Point2f deltaPoint, int faceH)
 {
-	if (!mouseHookPause)
-	{
-		float mdt = 0.04;
-		float mds = sqrt(deltaPoint.x * deltaPoint.x + deltaPoint.y * deltaPoint.y);
-		float mv = mds / mdt;
 
-		// disable trembling
 
-		if (mds < ultraSmallDelta)
-		{
-			if (detectDwellFlag && !turnOffClick)
-				mMouseDlg->dwellDetecting(0);
-			return;
-		}
-		//and disable moving if face changed
-		if (mds > cropToTrack.width / 2) return;
+		//mds = sqrt(deltaPoint.x * deltaPoint.x + deltaPoint.y * deltaPoint.y);
+		mv = mds / mdt;
 
 		velocityScale = velocityK * mv + 0.7;
 
@@ -661,19 +687,15 @@ void PointsTracker::calclMousePos(cv::Point2f deltaPoint, int faceH)
 		mouseX = cursorPos.x + correctedDX;
 		mouseY = cursorPos.y + correctedDY;
 
-		if (!mMouseDlg->notDragFlag && mMouseDlg->isNonMainClientArea)::SendMessage(hWnd, UWM_CUSTOMDRAGMAIN, NULL, 0);
-		if (!mMouseDlg->notDragFlag && mMouseDlg->isNonOptionsClientArea)::SendMessage(hWnd, UWM_CUSTOMDRAGOPTION, NULL, 0);
+		if (mMouseDlg->mainSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGMAIN, NULL, 0);
+		if (mMouseDlg->optSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGOPTION, NULL, 0);
 
 		if (mouseX > horLimit) mouseX = horLimit;
 		if (mouseY > vertLimit) mouseY = vertLimit;
 		if (mouseX < 1) mouseX = 0;
 		if (mouseY < 1) mouseY = 0;
 
-		SetCursorPos(mouseX, mouseY);
 
-		if (detectDwellFlag && faceInitiatedFlag && !turnOffClick) mMouseDlg->dwellDetecting(mds);
-
-	}
 
 }
 

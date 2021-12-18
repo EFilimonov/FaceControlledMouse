@@ -37,7 +37,7 @@ public:
 	CButton mCheckAutostart;
 
 	CSliderCtrl mSliderEWMA;
-	CSliderCtrl mSliderMarks;
+//	CSliderCtrl mSliderMarks;
 	CSliderCtrl mSliderAcceleration;
 	CSliderCtrl mSliderFace;
 	CSliderCtrl mSliderFaceMinNum;
@@ -50,12 +50,14 @@ public:
 	CStatic mStaticMinNum;
 	CStatic mStaticMaxNum;
 	CStatic mStaticEWMA;
-	CStatic mStaticMarks;
+//	CStatic mStaticMarks;
 	CStatic mStaticAcceleration;
 	CStatic mStaticFace;
 	CStatic mStaticCustom;
 	CStatic mStaticOnInput;
 	CButton mCheckSound;
+	CStatic mStaticLanguages;
+	CButton mCheckThreading;
 
 	CString mEditKeyboard;
 
@@ -63,7 +65,7 @@ public:
 	bool needEqualize = false;
 	bool needSound = true;
 	float fSliderEWMA;
-	float fSliderMarks;
+//	float fSliderMarks;
 	float fSliderAcceleration;
 	float fSliderOnInput = 5;
 	int iSliderFace = 5;
@@ -72,6 +74,7 @@ public:
 	int iSliderCustom = 10;
 	bool needAutostart = false;
 	int langNum = 0;
+	bool enableMultithreading = false;
 
 	CString statictext17 = L"Flip mouse movement";
 	CString statictext18 = L"Mouse click sound";
@@ -80,7 +83,7 @@ public:
 	CString statictext21 = L"Language:";
 	CString statictext22 = L"Pause after touching a physical mouse: ";
 	CString statictext23 = L"Smoothing threshold: ";
-	CString statictext24 = L"% of marks moving in one direction: ";
+//	CString statictext24 = L"% of marks moving in one direction: ";
 	CString statictext25 = L"Acceleration: ";
 	CString statictext26 = L"Face recognition";
 	CString statictext27 = L"Threshold (AI): ";
@@ -119,5 +122,5 @@ public:
 	LONG DeleteMyProgramForStartup(PCWSTR pszAppName, PCWSTR pathToExe, PCWSTR args);
 	void DeleteProgram();
 	afx_msg void OnCbnSelchangeComboLanguage();
-	CStatic mStaticLanguages;
+	afx_msg void OnBnClickedCheckThreading();
 };

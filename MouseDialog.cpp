@@ -209,62 +209,6 @@ BOOL MouseDialog::OnInitDialog()
 
 
 
-void MouseDialog::rotatePie(double elapsedSeconds, bool isDwell, bool isQuick, float _secSmile, float _sec1x, float _sec2x, float _secAll)//
-{
-
-//	SetWindowPos(&CWnd::wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
-
-
-	if (isDwell)
-	{
-		if (elapsedSeconds <= _secAll)
-		{
-			if (mouseClick == ONE_CL || mouseClick == RIGHT_CL || mouseClick == DRAG)changePie(ONE_CLICK);
-			if (mouseClick == DOUBLE_CL)changePie(DOUBLE);
-		}
-		else changePie(NEUTRAL);
-	}
-	else 
-	{ 
-		if(isQuick) // w/o cancel
-		{ 
-			if (elapsedSeconds > _secAll) return;
-			changePie(SMILING);
-		}
-		else // with cancel
-		{ 
-			
-		if (elapsedSeconds > _secAll) return;
-
-			if (mouseClick == ONE_CL || mouseClick == RIGHT_CL || mouseClick == DRAG)
-			{
-				if (elapsedSeconds > 0 && elapsedSeconds <= _secSmile)changePie(SMILING);
-				else if (elapsedSeconds > _secSmile && elapsedSeconds <= _sec1x) changePie(ONE_CLICK);
-				else if (elapsedSeconds > _sec1x) changePie(CANCEL);
-				else changePie(NEUTRAL);
-			}
-			else if (mouseClick == DOUBLE_CL)
-			{
-				if (elapsedSeconds > 0 && elapsedSeconds <= _secSmile)changePie(SMILING);
-				else if (elapsedSeconds > _secSmile && elapsedSeconds <= _sec1x) changePie(ONE_CLICK);
-				else if (elapsedSeconds > _sec1x && elapsedSeconds <= _sec2x) changePie(DOUBLE);
-				else if (elapsedSeconds > _sec2x) changePie(CANCEL);
-				else changePie(NEUTRAL);
-			}
-		}
-	}
-
-		pieDeg = elapsedSeconds / _secAll;
-
-		pieRad = pieDeg * 3.14159 * 2;
-
-		x_end_pie = pieSize + pieSize * cos(pieRad);
-
-		y_end_pie = pieSize + pieSize * sin(pieRad);
-
-}
-
 
 void MouseDialog::changePie(ClicksFaces _click)
 {
@@ -356,28 +300,22 @@ HBRUSH MouseDialog::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 }
 
 
-void MouseDialog::moveMouseDlg(bool onTop)
+void MouseDialog::moveMouseDlg(int _X, int _Y)
 {
+	if (!_X && !_Y) return;
+	SetCursorPos(_X, _Y);
 
-	GetCursorPos(&cursorPos);
+	dlgRect.left = _X + 10;
+	dlgRect.right = _X + 10 + pieSize;
+	dlgRect.top = _Y - 10;
+	dlgRect.bottom = _Y - 10 + pieSize;
 
-
-	dlgRect.left = cursorPos.x + 10;
-	dlgRect.right = cursorPos.x + 10 + pieSize;
-	dlgRect.top = cursorPos.y - 10;
-	dlgRect.bottom = cursorPos.y - 10 + pieSize;
-
-	if (onTop)
-	{
 	SetWindowPos(&CWnd::wndTopMost,
-		cursorPos.x + 10,
-		cursorPos.y - 10,
-		cursorPos.x + 10 + pieSize,
-		cursorPos.y - 10 + pieSize,
+		_X + 10,
+		_Y - 10,
+		_X + 10 + pieSize,
+		_Y - 10 + pieSize,
 		SWP_NOSIZE);
-	}
-	else 
-	MoveWindow(dlgRect);
 
 }
 
@@ -409,7 +347,7 @@ void MouseDialog::MouseInput()
 
 	if (mouseClick == DOUBLE_CL)
 	{
-		if (isTimer2Clicks)
+		if (!doubleClick)
 		{
 			mouse_event(MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_LEFTUP, cx, cy, 0, 0);
@@ -436,7 +374,7 @@ void MouseDialog::MouseInput()
 
 		::SendMessage(hWnd, UWM_CUSTOMRIGHTCLICK, 0, 0);
 
-		if (isNonMainClientArea || isNonOptionsClientArea) return;
+	//if (isNonMainClientArea || isNonOptionsClientArea) return;
 
 		mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_RIGHTDOWN, cx, cy, 0, 0);
 		mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_RIGHTUP, cx, cy, 0, 0);
@@ -450,7 +388,17 @@ void MouseDialog::MouseInput()
 		if (notDragFlag)
 		{
 			notDragFlag = false;
-			if (isNonMainClientArea || isNonOptionsClientArea) return;
+
+			if (isNonMainClientArea)
+			{
+				mainSelfDragflag = true;
+				return;
+			}
+			if (isNonOptionsClientArea)
+			{
+				optSelfDragflag = true;
+				return;
+			}
 
 			mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE, cx, cy, 0, 0);
@@ -464,7 +412,13 @@ void MouseDialog::MouseInput()
 
 			// return control to the left click
 			::SendMessage(hWnd, UWM_CUSTOMRIGHTCLICK, 0, 0);
-			if (isNonMainClientArea || isNonOptionsClientArea) return;
+
+			if (mainSelfDragflag || optSelfDragflag)
+			{
+				mainSelfDragflag = false;
+				optSelfDragflag = false;
+				return;
+			}
 
 			mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_LEFTUP, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE, cx, cy, 0, 0);
@@ -488,9 +442,6 @@ void MouseDialog::playClickSound()
 
 void MouseDialog::dwellDetecting(float dist)
 {
-
-//	inptext = "secDwellStartTime = " + std::to_string(secDwellStartTime) + "elapsedSeconds = " + std::to_string(elapsedSeconds) + " dwellMouseLocked = " + std::to_string(dwellMouseLocked);
-
 	if (dist < dwellDisp)
 	{
 
@@ -498,6 +449,8 @@ void MouseDialog::dwellDetecting(float dist)
 		{
 			dwellTimer.start();
 			if (!IsWindowVisible()) ShowWindow(SW_SHOW);
+			// don't lock double click
+			doubleClick = true;
 		}
 
 		dwellMouseLocked = false;
@@ -509,7 +462,7 @@ void MouseDialog::dwellDetecting(float dist)
 		{
 			if (elapsedSeconds < secDwellStartTime + dwellDuration)
 			{
-				rotatePie(elapsedSeconds - secDwellStartTime, true, false, secSmile, secToOneClickDuration, secToDoubleClickDuration, dwellDuration);
+				rotatePie(elapsedSeconds - secDwellStartTime, true, false);
 				RedrawWindow();
 			}
 			else
@@ -545,16 +498,19 @@ void MouseDialog::quickMouseDlg(bool detect)
 		if (smileMouseLocked)
 		{
 			mouseTimer.start();
+			// don't lock double click
+			doubleClick = true;
 		}
 
 		smileMouseLocked = false;
+
 
 
 		elapsedSeconds = mouseTimer.elapsedSeconds();
 
 		if (elapsedSeconds < secQuickClick)
 		{
-			rotatePie(elapsedSeconds, false, true, secSmile, secToOneClickDuration, secToDoubleClickDuration, secQuickClick);
+			rotatePie(elapsedSeconds, false, true);
 			RedrawWindow();
 		}
 		else // if keep smiling
@@ -579,77 +535,79 @@ void MouseDialog::quickMouseDlg(bool detect)
 
 }
 
-
+// long click with cancel
 void MouseDialog::timerMouseDlg(bool detect)
 {
-
+	// see smiling
 	if (detect)
 	{
-
+		// initiate variables
 		if (smileMouseLocked)
 		{
+			elapsedSeconds = 0.0;
 			initiateStart();
+
 		}
 
 		smileMouseLocked = false;
-
+		doNothing = false;
 
 		elapsedSeconds = mouseTimer.elapsedSeconds();
 
+		rotatePie(elapsedSeconds, false, false);
+		RedrawWindow();
+		// time for action
 		if (elapsedSeconds < secDuration)
 		{
-			rotatePie(elapsedSeconds, false, false, secSmile, secToOneClickDuration, secToDoubleClickDuration, secDuration);
 
 			// if keep smiling
 			if (elapsedSeconds > secSmile)
 			{
-				// if one-click settings
-				if (mouseClick == ONE_CL)
-				{
-					mouseClick = ONE_CL;
-					if (elapsedSeconds > secToOneClickDuration)
-						mouseClick = DO_NOTHING;
 
-				}
-				// if double-click settings
-				else if (mouseClick == DOUBLE_CL)
+				if (mouseClick == DOUBLE_CL)
 				{
-					mouseClick = ONE_CL;
-					if (elapsedSeconds > secToDoubleClickDuration)
-						mouseClick = DOUBLE_CL;
+					if (elapsedSeconds > secToOneClickDuration)
+						doubleClick = false;
+					doNothing = false;
+
+					if (elapsedSeconds < secToDoubleClickDuration)
+						doubleClick = true;
+					doNothing = false;
+
 					if (elapsedSeconds > secToDoubleClickCancelDuration)
-						mouseClick = DO_NOTHING;
+						doNothing = true;
 				}
-				// if left-click settings
-				else if (mouseClick == RIGHT_CL)
-				{
-					mouseClick = RIGHT_CL;
-					if (elapsedSeconds > secToOneClickDuration)
-						mouseClick = DO_NOTHING;
 
-				}
-				else if (mouseClick == DRAG)
+				else if (mouseClick == ONE_CL || RIGHT_CL || DRAG)
 				{
-					mouseClick = DRAG;
-					if (elapsedSeconds > secToOneClickDuration)
-						mouseClick = DO_NOTHING;
+					if (elapsedSeconds < secToOneClickCancelDuration)
+						doNothing = false;
+					else doNothing = true;
 				}
 
 			}
+			else doNothing = true;
 
 		}
-
-		else mouseTimer.stop();
-		RedrawWindow();
 
 	}
 	else
 	{
-		if (mouseClick != DO_NOTHING)
+		// time is out
+		if (elapsedSeconds > secDuration)
+		{
+			doNothing = true;
+			elapsedSeconds = 0.0;
+			mouseTimer.stop();
+			RedrawWindow();
+		}
+
+		if (!doNothing)
 		{
 			MouseInput();
-			mouseClick = DO_NOTHING;
+			doNothing = true;
 		}
+		//
 		mouseTimer.stop();
 		smileMouseLocked = true;
 		changePie(NEUTRAL);
@@ -657,6 +615,62 @@ void MouseDialog::timerMouseDlg(bool detect)
 	}
 
 }
+
+
+
+void MouseDialog::rotatePie(double elapsedSeconds, bool isDwell, bool isQuick)
+{
+	if (isDwell)
+	{
+		if (elapsedSeconds <= dwellDuration)
+		{
+			if (mouseClick == ONE_CL || mouseClick == RIGHT_CL || mouseClick == DRAG)changePie(ONE_CLICK);
+			if (mouseClick == DOUBLE_CL)changePie(DOUBLE);
+			pieDeg = elapsedSeconds / dwellDuration;
+		}
+		else changePie(NEUTRAL);
+	}
+	else
+	{
+		if (isQuick) // w/o cancel
+		{
+			if (elapsedSeconds > secQuickClick) return;
+			changePie(SMILING);
+			pieDeg = elapsedSeconds / secQuickClick;
+		}
+		else // long click with cancel
+		{
+
+			if (elapsedSeconds > secDuration) return;
+
+			if (mouseClick == ONE_CL || mouseClick == RIGHT_CL || mouseClick == DRAG)
+			{
+				if (elapsedSeconds > 0 && elapsedSeconds <= secSmile)changePie(SMILING);
+				else if (elapsedSeconds > secSmile && elapsedSeconds <= secToOneClickDuration) changePie(ONE_CLICK);
+				else if (elapsedSeconds > secToOneClickDuration) changePie(CANCEL);
+				else changePie(NEUTRAL);
+				pieDeg = elapsedSeconds / secToOneClickDuration;
+			}
+			else if (mouseClick == DOUBLE_CL)
+			{
+				if (elapsedSeconds > 0 && elapsedSeconds <= secSmile)changePie(SMILING);
+				else if (elapsedSeconds > secSmile && elapsedSeconds <= secToOneClickDuration) changePie(ONE_CLICK);
+				else if (elapsedSeconds > secToOneClickDuration && elapsedSeconds <= secToDoubleClickDuration) changePie(DOUBLE);
+				else if (elapsedSeconds > secToDoubleClickDuration) changePie(CANCEL);
+				else changePie(NEUTRAL);
+				pieDeg = elapsedSeconds / secToDoubleClickDuration;
+			}
+		}
+	}
+
+	pieRad = pieDeg * 3.14159 * 2;
+
+	x_end_pie = pieSize + pieSize * cos(pieRad);
+
+	y_end_pie = pieSize + pieSize * sin(pieRad);
+
+}
+
 
 void MouseDialog::initiateStart()
 {

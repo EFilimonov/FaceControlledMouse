@@ -54,7 +54,7 @@ public:
 	bool back_flipCameraFlag;
 	bool back_needEqualize;
 	float back_fSliderEWMA;
-	float back_fSliderMarks;
+//	float back_fSliderMarks;
 	float back_fSliderAcceleration;
 	float back_fSliderOnInput;
 	int back_iSliderFace;

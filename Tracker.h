@@ -47,11 +47,13 @@ public:
 	bool initFacialTracker(int i, cv::Mat& _frame_gray);
 	void ClearEWMAFilters();
 
+	HWND hChild;
+
 	MouseDialog* mMouseDlg;
 
 	POINT cursorPos;
-	POINT oldCursorPos;
-	POINT newCursorPos;
+	POINT oldDelta;
+//	POINT newCursorPos;
 
 	float velocityScale;
 	float velocitySlider = 3;
@@ -138,20 +140,17 @@ public:
 
 #define ULTRASMALLMOVECOLOR cv::Scalar(1, 209, 4)
 #define SMALLMOVECOLOR cv::Scalar(1, 209, 4)
-
-
-
 #define ULTRASMALL_DELTA_LIMIT 8000 //  ultrasmall/small movement, bigger -> more sensitive 
 	double ultraSmallDelta;
 
-	float resultantLenth;
-	float addLenth;
-	float accumMoveRatio = 0.6;
+//	float resultantLenth;
+//	float addLenth;
+//	float accumMoveRatio = 0.6;
 
 	bool allowMove;
 
-	float sumVx;
-	float sumVy;
+//	float sumVx;
+//	float sumVy;
 #define PI 3.1415926535
 
 	float captureHorizontal;
@@ -166,6 +165,10 @@ public:
 	float deltaYpos = 0;
 	int mouseX = 0;
 	int mouseY = 0;
+
+	float mdt = 0.04;
+	float mds;
+	float mv;
 
 	int correctedDX, correctedDY;
 
@@ -194,8 +197,8 @@ public:
 
 //	float dwellDisp = 1.0;
 
-	bool isNonOptionsClientArea = false;
-	bool isNonMainClientArea = false;
+//	bool isNonOptionsClientArea = false;
+//	bool isNonMainClientArea = false;
 
 	bool needEqualize = false;
 
@@ -209,6 +212,7 @@ public:
 #define UWM_CUSTOMCLICK (WM_APP+7)
 
 	cv::Point2f dMouse;
+	cv::Point2f dMouseOld;
 
 	bool flipCameraFlag = false;
 	bool showVideoFlag = true;
@@ -216,21 +220,21 @@ public:
 	CString editKeyboard;
 
 	double ewmaAlpha = 0.6;
-	double ewmaSmileAlpha = 0.3;
+	double ewmaSmileAlpha = 0.7;
 	//0.1 Less smoothing - faster to detect changes, but more prone to noise
 	//0.01 More smoothing - less prone to noise, but slower to detect changes
 
-	bool isOpticalFlow;
-	bool isMosseTracker;
+//	bool isOpticalFlow;
+//	bool isMosseTracker;
 	float boxWidth;
 	float boxHeight;
 	float boxRatio = 2.0;
 
 	std::vector<PointMosse> pointsMosse;
-
-
 	int activeTrackers = 0;
 	bool skipframe = true;
+
+	cv::Rect2d trackingRectangle;
 
 // Implementation
 protected:

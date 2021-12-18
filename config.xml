@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <opencv_storage>
-<detectSmileGeoFlag>1</detectSmileGeoFlag>
+<detectSmileGeoFlag>0</detectSmileGeoFlag>
 <detectSmileAIFlag>0</detectSmileAIFlag>
-<detectDwellFlag>0</detectDwellFlag>
+<detectDwellFlag>1</detectDwellFlag>
 <mouseClick>0</mouseClick>
 <isQuickClick>1</isQuickClick>
-<horSensitivity>2.5000000000000000e+00</horSensitivity>
-<verSensitivity>3.</verSensitivity>
-<smilingTriggerAngle>100</smilingTriggerAngle>
-<minNeighborsSmileDetector>100</minNeighborsSmileDetector>
-<dwellDisp>2.0999999344348907e-01</dwellDisp>
+<horSensitivity>2.</horSensitivity>
+<verSensitivity>2.5000000000000000e+00</verSensitivity>
+<smilingTriggerAngle>110</smilingTriggerAngle>
+<minNeighborsSmileDetector>110</minNeighborsSmileDetector>
+<dwellDisp>3.7000000476837158e-01</dwellDisp>
 <dwellDuration>1.</dwellDuration>
 <secQuickClick>6.9999998807907104e-01</secQuickClick>
 <secSmile>5.0000000000000000e-01</secSmile>
@@ -19,16 +19,16 @@
 <flipCameraFlag>1</flipCameraFlag>
 <showVideoFlag>1</showVideoFlag>
 <ewmaAlpha>2.5000000000000000e-01</ewmaAlpha>
-<accumMoveRatio>6.0000002384185791e-01</accumMoveRatio>
 <velocitySlider>2.</velocitySlider>
 <minFaceNeighbors>8</minFaceNeighbors>
 <editKeyboard>"C:\Program Files (x86)\Click2Speak\Click2Speak.Client.exe"</editKeyboard>
 <needEqualize>0</needEqualize>
 <needAutostart>0</needAutostart>
 <minDistRatio>4.</minDistRatio>
-<minCornersCount>6</minCornersCount>
-<maxCornersCount>16</maxCornersCount>
+<minCornersCount>7</minCornersCount>
+<maxCornersCount>12</maxCornersCount>
 <pauseTime>4.</pauseTime>
 <needSound>1</needSound>
 <langNum>0</langNum>
+<enableMultithreading>0</enableMultithreading>
 </opencv_storage>

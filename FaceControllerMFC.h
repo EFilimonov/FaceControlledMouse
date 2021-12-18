@@ -21,9 +21,34 @@ public:
 	CFaceControllerMFCApp();
 
 
+	void MouseActions();
+	void TrackingActions();
+
+	//	UINT __cdecl RecExtractThreadCtrlFunc(LPVOID pParam);
+
+	static void thread_proc1(void* param) {
+		CFaceControllerMFCApp* pthis = (CFaceControllerMFCApp*)param;
+		if (pthis != 0)
+		{
+			pthis->TrackingActions();
+		}
+	}
+
+	static void thread_proc2(void* param) {
+		CFaceControllerMFCApp* pthis = (CFaceControllerMFCApp*)param;
+		if (pthis != 0)
+		{
+			pthis->MouseActions();
+		}
+	}
+
+
+
 // Overrides
 public:
 	virtual BOOL InitInstance();
+
+
 
 // Implementation
 
