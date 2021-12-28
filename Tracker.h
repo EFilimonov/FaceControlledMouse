@@ -17,8 +17,8 @@ class PointMosse
 	public:
 		cv::Rect2d facialRectangle;
 		cv::Ptr<cv::legacy::Tracker> facialTracker;
-		Ewma facialFilterX;
-		Ewma facialFilterY;
+		//Ewma facialFilterX;
+		//Ewma facialFilterY;
 		cv::Point2f pointNew;
 		cv::Point2f pointOld;
 		cv::Point2f pointDelta;
@@ -45,7 +45,6 @@ public:
 
 	void calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray);
 	bool initFacialTracker(int i, cv::Mat& _frame_gray);
-	void ClearEWMAFilters();
 
 	HWND hChild;
 
@@ -53,7 +52,6 @@ public:
 
 	POINT cursorPos;
 	POINT oldDelta;
-//	POINT newCursorPos;
 
 	float velocityScale;
 	float velocitySlider = 3;
@@ -106,6 +104,9 @@ public:
 	Ewma ewmaSmileFilterObj;
 	Ewma ewmasmilingAnCalcCorrObj;
 
+	Ewma facialFilterX;
+	Ewma facialFilterY;
+
 	cv::String inptext;
 	cv::String facetext = "Face not detected";
 	cv::String tempinptext;
@@ -133,8 +134,6 @@ public:
 	double minDistRatio = 4.0; // cels num per crop (more -> dencer)
 	double minDist = 10;
 
-	//#define MAX_CORNERS_COUNT 35 
-	//#define MIN_CORNERS_COUNT 10 
 	int minCornersCount = 14;
 	int maxCornersCount = 25;
 
@@ -143,14 +142,9 @@ public:
 #define ULTRASMALL_DELTA_LIMIT 8000 //  ultrasmall/small movement, bigger -> more sensitive 
 	double ultraSmallDelta;
 
-//	float resultantLenth;
-//	float addLenth;
-//	float accumMoveRatio = 0.6;
 
 	bool allowMove;
 
-//	float sumVx;
-//	float sumVy;
 #define PI 3.1415926535
 
 	float captureHorizontal;
@@ -195,11 +189,6 @@ public:
 	Timer moveLockTimer;
 	bool skipHook = false;
 
-//	float dwellDisp = 1.0;
-
-//	bool isNonOptionsClientArea = false;
-//	bool isNonMainClientArea = false;
-
 	bool needEqualize = false;
 
 	CWnd* m_pMainWnd;
@@ -220,12 +209,9 @@ public:
 	CString editKeyboard;
 
 	double ewmaAlpha = 0.6;
-	double ewmaSmileAlpha = 0.7;
+	double ewmaSmileAlpha = 0.6;
 	//0.1 Less smoothing - faster to detect changes, but more prone to noise
 	//0.01 More smoothing - less prone to noise, but slower to detect changes
-
-//	bool isOpticalFlow;
-//	bool isMosseTracker;
 	float boxWidth;
 	float boxHeight;
 	float boxRatio = 2.0;

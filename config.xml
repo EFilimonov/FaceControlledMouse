@@ -5,9 +5,9 @@
 <detectDwellFlag>1</detectDwellFlag>
 <mouseClick>0</mouseClick>
 <isQuickClick>1</isQuickClick>
-<horSensitivity>2.</horSensitivity>
-<verSensitivity>2.5000000000000000e+00</verSensitivity>
-<smilingTriggerAngle>110</smilingTriggerAngle>
+<horSensitivity>2.2000000476837158e+00</horSensitivity>
+<verSensitivity>3.</verSensitivity>
+<smilingTriggerAngle>100</smilingTriggerAngle>
 <minNeighborsSmileDetector>110</minNeighborsSmileDetector>
 <dwellDisp>3.7000000476837158e-01</dwellDisp>
 <dwellDuration>1.</dwellDuration>
@@ -18,13 +18,13 @@
 <secDwellStartTime>2.</secDwellStartTime>
 <flipCameraFlag>1</flipCameraFlag>
 <showVideoFlag>1</showVideoFlag>
-<ewmaAlpha>2.5000000000000000e-01</ewmaAlpha>
-<velocitySlider>2.</velocitySlider>
-<minFaceNeighbors>8</minFaceNeighbors>
-<editKeyboard>"C:\Program Files (x86)\Click2Speak\Click2Speak.Client.exe"</editKeyboard>
+<ewmaAlpha>3.0000001192092896e-01</ewmaAlpha>
+<velocitySlider>1.7999999523162842e+00</velocitySlider>
+<minFaceNeighbors>6</minFaceNeighbors>
+<editKeyboard>""</editKeyboard>
 <needEqualize>0</needEqualize>
 <needAutostart>0</needAutostart>
-<minDistRatio>4.</minDistRatio>
+<minDistRatio>5.</minDistRatio>
 <minCornersCount>7</minCornersCount>
 <maxCornersCount>12</maxCornersCount>
 <pauseTime>4.</pauseTime>

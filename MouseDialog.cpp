@@ -276,6 +276,8 @@ void MouseDialog::changePie(ClicksFaces _click)
 			mStaticInfoText = (L"");
 			pointerCBrush = &brushGray;
 			pointerCPen = &penGray;
+			x_end_pie = pieSize;
+			y_end_pie = pieSize / 2;
 			RedrawWindow();
 			break;
 		}
@@ -357,12 +359,14 @@ void MouseDialog::MouseInput()
 
 		else
 		{
+
+
 			mouse_event(MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_LEFTUP, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_LEFTUP, cx, cy, 0, 0);
 			mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, cx, cy, 0, 0);
-
+			playClickSound();
 		}
 
 	}
@@ -373,8 +377,6 @@ void MouseDialog::MouseInput()
 		// return control to the left click
 
 		::SendMessage(hWnd, UWM_CUSTOMRIGHTCLICK, 0, 0);
-
-	//if (isNonMainClientArea || isNonOptionsClientArea) return;
 
 		mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_RIGHTDOWN, cx, cy, 0, 0);
 		mouse_event(MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_RIGHTUP, cx, cy, 0, 0);
@@ -434,6 +436,7 @@ void MouseDialog::playClickSound()
 {
 	if (playSoundFlag && needSound)
 	{
+		hr = pSourceVoice->Stop(0);
 		hr = pSourceVoice->SubmitSourceBuffer(&buffer);
 		hr = pSourceVoice->Start(0);
 	}
@@ -551,6 +554,7 @@ void MouseDialog::timerMouseDlg(bool detect)
 
 		smileMouseLocked = false;
 		doNothing = false;
+		doubleClick = false;
 
 		elapsedSeconds = mouseTimer.elapsedSeconds();
 
@@ -566,19 +570,23 @@ void MouseDialog::timerMouseDlg(bool detect)
 
 				if (mouseClick == DOUBLE_CL)
 				{
-					if (elapsedSeconds > secToOneClickDuration)
+					if (elapsedSeconds < secToOneClickDuration)
+					{ 
 						doubleClick = false;
-					doNothing = false;
-
-					if (elapsedSeconds < secToDoubleClickDuration)
+						doNothing = false;
+					}
+					else if (elapsedSeconds < secToDoubleClickDuration)
+					{
 						doubleClick = true;
-					doNothing = false;
+						doNothing = false;
+					}
+
 
 					if (elapsedSeconds > secToDoubleClickCancelDuration)
 						doNothing = true;
 				}
 
-				else if (mouseClick == ONE_CL || RIGHT_CL || DRAG)
+				if (mouseClick == ONE_CL || RIGHT_CL || DRAG)
 				{
 					if (elapsedSeconds < secToOneClickCancelDuration)
 						doNothing = false;

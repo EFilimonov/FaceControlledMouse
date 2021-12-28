@@ -120,7 +120,7 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	/// <returns></returns>
 
 	//sPathToFolder = "C:/Program Files (x86)/Face Controlled Mouse/";
-	sPathToFolder = "";
+	//sPathToFolder = "";
 
 	if (!enableMultithreading) cv::setNumThreads(1);
 
@@ -499,7 +499,6 @@ void CFaceControllerMFCDlg::OnBnClickedStart()
 			if (!trackerPtr->mouseHookPause)
 			{
 				mMouseDlg->moveMouseDlg(trackerPtr->mouseX, trackerPtr->mouseY);
-			//	MouseActions();
 			}
 
 			if (!trackerPtr->Tracking()) break;
@@ -1319,6 +1318,12 @@ void CFaceControllerMFCDlg::initSettings()
 void CFaceControllerMFCDlg::OnBnClickedButtonOcr()
 {
 
+	if (trackerPtr->editKeyboard.GetLength() < 1)
+	{
+		MessageBox(_T("Please add the path to the screen app in the settings!"));
+		return;
+	}
+
 	PVOID OldValue = NULL;
 	Wow64DisableWow64FsRedirection(&OldValue);
 	//ShellExecute(this->GetSafeHwnd(), L"open", L"osk.exe", NULL, NULL, SW_SHOWNORMAL);OptikeyPro.exe
@@ -1361,7 +1366,6 @@ void CFaceControllerMFCDlg::OnBnClickedButtonDrag()
 
 void CFaceControllerMFCDlg::OnNcMouseLeave()
 {
-	//if(trackerPtr->mMouseDlg->isNonMainClientArea && trackerPtr->mMouseDlg->mouseClick != trackerPtr->mMouseDlg->DRAG)
 	trackerPtr->mMouseDlg->isNonMainClientArea = false;
 	CDialogEx::OnNcMouseLeave();
 

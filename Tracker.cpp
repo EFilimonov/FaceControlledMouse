@@ -174,6 +174,8 @@ void PointsTracker::initiateTracker()
 
 	ewmaSmileFilterObj.alpha = ewmaSmileAlpha;
 	ewmasmilingAnCalcCorrObj.alpha = ewmaSmileAlpha;
+	facialFilterX.alpha = ewmaAlpha;
+	facialFilterY.alpha = ewmaAlpha;
 
 	OnSetMousehook();
 
@@ -265,16 +267,16 @@ bool PointsTracker::Tracking()
 
 
 
+
+	try {
+
 	//if (flipCameraFlag)cv::flip(frame, frame, 1);
 
 	// Convert input to greyscale 
 	cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
 
-	// Detecting faces
-	frontalFaceDetector.detectMultiScale(frame_gray, faces, 1.1, minFaceNeighbors, cv::CASCADE_FIND_BIGGEST_OBJECT | cv::CASCADE_DO_CANNY_PRUNING, cv::Size(65, 65));
-
-	try {
-
+	    // Detecting faces
+	    frontalFaceDetector.detectMultiScale(frame_gray, faces, 1.1, minFaceNeighbors, cv::CASCADE_FIND_BIGGEST_OBJECT | cv::CASCADE_DO_CANNY_PRUNING, cv::Size(65, 65));
 
 		// if face detected
 		if (!faces.empty())
@@ -287,12 +289,9 @@ bool PointsTracker::Tracking()
 			cropToTrack.y = faces[0].y;
 
 			// face too close or far
-			//if (cropToTrack.width * 1.8 < faces[0].width || cropToTrack.width > faces[0].width * 0.7)
-			//{
 			cropToTrack.width = faces[0].width * 0.6;
 			cropToTrack.height = faces[0].height * 0.65;
-			//	needToTrackerInit = true;
-			//}
+
 
 			if (needEqualize)
 			{
@@ -316,8 +315,11 @@ bool PointsTracker::Tracking()
 				cv::putText(frame, tempinptext, cv::Point(40, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
 			}
 			// if face not found move rectancle with tracking points
-			cropToTrack.x += dMouse.x;
-			cropToTrack.y += dMouse.y;
+			if (dMouse.x < cropToTrack.width && dMouse.y < cropToTrack.height)
+			{
+				cropToTrack.x += dMouse.x;
+				cropToTrack.y += dMouse.y;
+			}
 
 			if (needEqualize)
 			{
@@ -345,17 +347,17 @@ bool PointsTracker::Tracking()
 			frame_gray.copyTo(equalizerROI);
 		}
 
+		boxWidth = (float)cropToTrack.width / boxRatio;
+		boxHeight = (float)cropToTrack.height / boxRatio;
 
 
 		if (needToTrackerInit)
 		{
-			//AfxMessageBox(L"");
 			cv::Mat mask(frame_gray.size(), CV_8UC1, cv::Scalar(0));
 			mask(cropToTrack).setTo(cv::Scalar(255));
 
 			// minimum dist between tracking points 
-
-			//maxCornersCount = (int) (1.5 * minCornersCount + 15);
+			minDist = cropToTrack.width / minDistRatio;
 
 			pointsT.clear();
 
@@ -372,23 +374,13 @@ bool PointsTracker::Tracking()
 
 			cornerSubPix(frame_gray, pointsT, cvSize(10, 10), cv::Size(-1, -1), termcrit);
 
-		}
-
-		boxWidth = (float)cropToTrack.width / boxRatio;
-		boxHeight = (float)cropToTrack.height / boxRatio;
-
-
-
-		if (needToTrackerInit)
-		{
 			activeTrackers = pointsT.size();
 
 			pointsMosse.clear();
+
 			pointsMosse.resize(activeTrackers);
 
 			skipframe = true;
-
-			//trackingRectangle.x =
 
 			trackingRectangle.x = cropToTrack.x - cropToTrack.width * 0.5;
 			trackingRectangle.y = cropToTrack.y - cropToTrack.height * 0.5;
@@ -509,7 +501,7 @@ bool PointsTracker::Tracking()
 	int key2 = cv::waitKey(27);
 
 
-	if (!mouseHookPause)
+	if (!mouseHookPause && !buttonStop)
 	{
 		if (detectDwellFlag && faceInitiatedFlag)
 		{
@@ -547,8 +539,8 @@ bool PointsTracker::initFacialTracker(int i, cv::Mat& _frame_gray)
 	pointsMosse[i].facialTracker->init(_frame_gray, pointsMosse[i].facialRectangle);
 
 
-	pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
-	pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
+	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
+	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
 
 	pointsMosse[i].pointNew = pointsT[i];
 	pointsMosse[i].pointOld = pointsT[i];
@@ -573,8 +565,8 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 		bool found = pointsMosse[i].facialTracker->update(_frame_gray, pointsMosse[i].facialRectangle);
 
 
-		pointsMosse[i].pointNew.x = pointsMosse[i].facialFilterX.filter(pointsMosse[i].facialRectangle.x);
-		pointsMosse[i].pointNew.y = pointsMosse[i].facialFilterY.filter(pointsMosse[i].facialRectangle.y);
+		pointsMosse[i].pointNew.x = pointsMosse[i].facialRectangle.x;
+		pointsMosse[i].pointNew.y = pointsMosse[i].facialRectangle.y;
 
 		cv::Point _newt(pointsMosse[i].pointNew.x + boxWidth / 2, pointsMosse[i].pointNew.y + boxHeight / 2);
 		_newt.x += trackingRectangle.x;
@@ -682,20 +674,24 @@ void PointsTracker::calclMousePos(cv::Point2f deltaPoint, int faceH)
 		correctedDX = (LONG)(deltaPoint.x * horScale * horSensitivity);
 		correctedDY = (LONG)(deltaPoint.y * verScale * verSensitivity);
 
+		facialFilterX.alpha = ewmaAlpha;
+		facialFilterY.alpha = ewmaAlpha;
+
+		correctedDX = facialFilterX.filter(correctedDX);
+		correctedDY = facialFilterY.filter(correctedDY);
+
 		GetCursorPos(&cursorPos);
 
 		mouseX = cursorPos.x + correctedDX;
 		mouseY = cursorPos.y + correctedDY;
-
-		if (mMouseDlg->mainSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGMAIN, NULL, 0);
-		if (mMouseDlg->optSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGOPTION, NULL, 0);
 
 		if (mouseX > horLimit) mouseX = horLimit;
 		if (mouseY > vertLimit) mouseY = vertLimit;
 		if (mouseX < 1) mouseX = 0;
 		if (mouseY < 1) mouseY = 0;
 
-
+		if (mMouseDlg->mainSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGMAIN, NULL, 0);
+		if (mMouseDlg->optSelfDragflag && mMouseDlg->mouseClick == mMouseDlg->DRAG)::SendMessage(hWnd, UWM_CUSTOMDRAGOPTION, NULL, 0);
 
 }
 
