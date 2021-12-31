@@ -19,6 +19,7 @@ class PointMosse
 		cv::Ptr<cv::legacy::Tracker> facialTracker;
 		//Ewma facialFilterX;
 		//Ewma facialFilterY;
+		bool needInit = false;
 		cv::Point2f pointNew;
 		cv::Point2f pointOld;
 		cv::Point2f pointDelta;
@@ -46,6 +47,15 @@ public:
 	void calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray);
 	bool initFacialTracker(int i, cv::Mat& _frame_gray);
 
+	void addNewPoints();
+
+	void addFacialTracker(cv::Point2f _pt, cv::Mat& _frame_gray);
+
+	void preTrackingActions();
+	
+
+	
+
 	HWND hChild;
 
 	MouseDialog* mMouseDlg;
@@ -62,7 +72,7 @@ public:
 
 	bool mouseHookPause = false;
 	bool buttonStop = true;
-	float pauseTime = 5.0;
+	//float pauseTime = 5.0;
 
 	CRect buttonStartPosition;
 
@@ -85,13 +95,17 @@ public:
 	bool firstFaceCropFlag = true;
 
 	cv::Mat frame, frame_gray, faceROI, equalizerROI;
+
+
+
 	// Vector of returned faces
-	std::vector<cv::Rect> faces;
+	std::vector<cv::Rect> faces, oldfaces;
 
 	std::vector<std::vector<cv::Point2f> > landmarks;
 
 
 	bool needToTrackerInit = true;
+	bool needToAddPoints = false;
 
 	std::vector<cv::Point2f> pointsT;
 
@@ -186,7 +200,7 @@ public:
 	bool isQuickClick = false;
 	bool quickSmileUnlocked = true;
 
-	Timer moveLockTimer;
+//	Timer moveLockTimer;
 	bool skipHook = false;
 
 	bool needEqualize = false;
@@ -221,6 +235,8 @@ public:
 	bool skipframe = true;
 
 	cv::Rect2d trackingRectangle;
+
+
 
 // Implementation
 protected:

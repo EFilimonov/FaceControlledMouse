@@ -219,7 +219,7 @@ void MouseDialog::changePie(ClicksFaces _click)
 		{
 
 		case LOSTFACE:
-			mStaticInfoText = (L"\U0001F576");// sunglass https://codepoints.net/emoticons
+			mStaticInfoText = (L"");// sunglass https://codepoints.net/emoticons
 			pointerCBrush = &brushGray;
 			pointerCPen = &penGray;
 			x_end_pie = pieSize;
@@ -241,7 +241,7 @@ void MouseDialog::changePie(ClicksFaces _click)
 			RedrawWindow();
 			break;
 		case DWELL:
-			mStaticInfoText = (L"\U0001F610");// neutral https://codepoints.net/emoticons
+			mStaticInfoText = (L"");// neutral https://codepoints.net/emoticons
 			pointerCBrush = &brushGreen;
 			pointerCPen = &penGreen;
 			RedrawWindow();
@@ -374,6 +374,10 @@ void MouseDialog::MouseInput()
 	if (mouseClick == RIGHT_CL)
 	{
 
+		if (isNonMainClientArea || isNonOptionsClientArea)
+		{
+			return;
+		}
 		// return control to the left click
 
 		::SendMessage(hWnd, UWM_CUSTOMRIGHTCLICK, 0, 0);
@@ -506,8 +510,6 @@ void MouseDialog::quickMouseDlg(bool detect)
 		}
 
 		smileMouseLocked = false;
-
-
 
 		elapsedSeconds = mouseTimer.elapsedSeconds();
 

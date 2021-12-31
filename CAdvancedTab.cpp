@@ -38,9 +38,9 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_KEYBOARD, mEditKeyboard);
 	DDX_Control(pDX, IDC_CHECK_EQUALIZE, mCheckEqualize);
 	DDX_Control(pDX, IDC_SLIDER_FACE_MINNUM, mSliderFaceMinNum);
-	DDX_Control(pDX, IDC_SLIDER_FACE_MINDIST, mSliderFaceMaxNum);
+	//	DDX_Control(pDX, IDC_SLIDER_FACE_MINDIST, mSliderFaceMaxNum);
 	DDX_Control(pDX, IDC_STATIC_MINNUM, mStaticMinNum);
-	DDX_Control(pDX, IDC_STATIC_MINDIST, mStaticMaxNum);
+	//DDX_Control(pDX, IDC_STATIC_MINDIST, mStaticMaxNum);
 	DDX_Control(pDX, IDC_SLIDER_CUSTOM, mSliderCustom);
 	DDX_Control(pDX, IDC_STATIC_CUSTOM, mStaticCustom);
 	DDX_Control(pDX, IDC_CHECK_AUTOSTART, mCheckAutostart);
@@ -50,6 +50,8 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_LANGUAGE, mComboLanguage);
 	DDX_Control(pDX, IDC_STATIC_LANGUAGES, mStaticLanguages);
 	DDX_Control(pDX, IDC_CHECK_THREADING, mCheckThreading);
+	DDX_Control(pDX, IDC_STATIC_FACE_FRAMES, mStaticFaceFrames);
+	DDX_Control(pDX, IDC_SLIDER_FACE_FRAMES, mSliderFaceFrames);
 }
 
 
@@ -64,13 +66,14 @@ BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_KEYBOARD, &CAdvancedTab::OnEnChangeEditKeyboard)
 	ON_BN_CLICKED(IDC_CHECK_EQUALIZE, &CAdvancedTab::OnBnClickedCheckEqualize)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_MINNUM, &CAdvancedTab::OnNMCustomdrawSliderFaceMinnum)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_MINDIST, &CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum)
+	//ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_MINDIST, &CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_CUSTOM, &CAdvancedTab::OnNMCustomdrawSliderCustom)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSTART, &CAdvancedTab::OnBnClickedCheckAutostart)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_ONINPUT, &CAdvancedTab::OnNMCustomdrawSliderOninput)
 	ON_BN_CLICKED(IDC_CHECK_SOUND, &CAdvancedTab::OnBnClickedCheckSound)
 	ON_CBN_SELCHANGE(IDC_COMBO_LANGUAGE, &CAdvancedTab::OnCbnSelchangeComboLanguage)
 	ON_BN_CLICKED(IDC_CHECK_THREADING, &CAdvancedTab::OnBnClickedCheckThreading)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_FRAMES, &CAdvancedTab::OnNMCustomdrawSliderFaceFrames)
 END_MESSAGE_MAP()
 
 
@@ -83,10 +86,11 @@ BOOL CAdvancedTab::OnInitDialog()
 //	mSliderMarks.SetRange(30, 98);
 	mSliderAcceleration.SetRange(10, 50);
 	mSliderFace.SetRange(2, 100);
-	mSliderFaceMaxNum.SetRange(10, 25);
+//	mSliderFaceMaxNum.SetRange(10, 25);
 	mSliderFaceMinNum.SetRange(3, 15);
 	mSliderCustom.SetRange(1, 10);
 	mSliderOnInput.SetRange(0.01, 100);
+	mSliderFaceFrames.SetRange(1, 10);
 
 	if (IsMyProgramRegisteredForStartup(L"Face_Controlled_Mouse"))
 	{
@@ -332,7 +336,7 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceMinnum(NMHDR* pNMHDR, LRESULT* pResul
 	UpdateData(TRUE);
 	iSliderMinNum = mSliderFaceMinNum.GetPos();
 	if (iSliderMinNum < 3) iSliderMinNum = 3;
-	if (iSliderMinNum > iSliderMaxNum - 2) iSliderMinNum > iSliderMaxNum - 2;
+//	if (iSliderMinNum > iSliderMaxNum - 2) iSliderMinNum > iSliderMaxNum - 2;
 	str2.Format(L"%.*i", 0, iSliderMinNum);
 //	str1 = "Min marks: ";
 	mStaticMinNum.SetWindowTextW(statictext29 + str2);
@@ -342,6 +346,23 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceMinnum(NMHDR* pNMHDR, LRESULT* pResul
 }
 
 
+
+void CAdvancedTab::OnNMCustomdrawSliderFaceFrames(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	UpdateData(TRUE);
+	iSliderFaceFrames = mSliderFaceFrames.GetPos();
+	if (iSliderFaceFrames < 1) iSliderFaceFrames = 1;
+	if (iSliderFaceFrames > 10) iSliderFaceFrames = 10;
+	str2.Format(L"%.*i", 0, iSliderFaceFrames);
+	mStaticFaceFrames.SetWindowTextW(statictext30 + str2);
+	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_FACE_FRAMES, 0);
+
+	*pResult = 0;
+}
+
+
+/*
 void CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
@@ -356,7 +377,7 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum(NMHDR* pNMHDR, LRESULT* pResul
 
 	*pResult = 0;
 }
-
+*/
 
 void CAdvancedTab::OnNMCustomdrawSliderCustom(NMHDR* pNMHDR, LRESULT* pResult)
 {

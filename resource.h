@@ -1468,10 +1468,12 @@
 #define stc5                            0x0444
 #define IDC_STATIC_LONGCLICK            1092
 #define stc6                            0x0445
-#define IDC_CHECK2                      1093
 #define IDC_CHECK_THREADING             1093
 #define stc7                            0x0446
+#define IDC_STATIC_FACE_FRAMES          1094
 #define stc8                            0x0447
+#define IDC_SLIDER1                     1095
+#define IDC_SLIDER_FACE_FRAMES          1095
 #define stc9                            0x0448
 #define stc10                           0x0449
 #define stc11                           0x044a
@@ -1744,7 +1746,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        189
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1094
+#define _APS_NEXT_CONTROL_VALUE         1096
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

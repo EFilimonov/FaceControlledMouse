@@ -41,14 +41,14 @@ public:
 	CSliderCtrl mSliderAcceleration;
 	CSliderCtrl mSliderFace;
 	CSliderCtrl mSliderFaceMinNum;
-	CSliderCtrl mSliderFaceMaxNum;
+//	CSliderCtrl mSliderFaceMaxNum;
 	CSliderCtrl mSliderCustom;
 	CSliderCtrl mSliderOnInput;
 
 	CComboBox mComboLanguage;
 
 	CStatic mStaticMinNum;
-	CStatic mStaticMaxNum;
+//	CStatic mStaticMaxNum;
 	CStatic mStaticEWMA;
 //	CStatic mStaticMarks;
 	CStatic mStaticAcceleration;
@@ -70,7 +70,8 @@ public:
 	float fSliderOnInput = 5;
 	int iSliderFace = 5;
 	int iSliderMinNum = 12;
-	int iSliderMaxNum = 30;
+	int iSliderFaceFrames = 3;
+//	int iSliderMaxNum = 30;
 	int iSliderCustom = 10;
 	bool needAutostart = false;
 	int langNum = 0;
@@ -89,7 +90,7 @@ public:
 	CString statictext27 = L"Threshold (AI): ";
 	CString statictext28 = L"Cells/width: ";
 	CString statictext29 = L"Min marks: ";
-	CString statictext30 = L"Max marks: ";
+	CString statictext30 = L"Face/frame: ";
 	CString statictext31 = L"Path to onscreen application";
 	CString statictext32 = L"Reset default settings";
 
@@ -107,7 +108,7 @@ public:
 	afx_msg void OnEnChangeEditKeyboard();
 	afx_msg void OnBnClickedCheckEqualize();
 	afx_msg void OnNMCustomdrawSliderFaceMinnum(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnNMCustomdrawSliderFaceMaxnum(NMHDR* pNMHDR, LRESULT* pResult);
+	//afx_msg void OnNMCustomdrawSliderFaceMaxnum(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnNMCustomdrawSliderCustom(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnBnClickedCheckAutostart();
 	afx_msg void OnNMCustomdrawSliderOninput(NMHDR* pNMHDR, LRESULT* pResult);
@@ -123,4 +124,7 @@ public:
 	void DeleteProgram();
 	afx_msg void OnCbnSelchangeComboLanguage();
 	afx_msg void OnBnClickedCheckThreading();
+	CStatic mStaticFaceFrames;
+	CSliderCtrl mSliderFaceFrames;
+	afx_msg void OnNMCustomdrawSliderFaceFrames(NMHDR* pNMHDR, LRESULT* pResult);
 };

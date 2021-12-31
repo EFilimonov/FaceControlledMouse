@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Tracker.h"
-
+/*
 
 HHOOK MouseHook;
 bool isGlobalMouseMove = false;
@@ -24,7 +24,7 @@ void PointsTracker::OnSetMousehook()
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	MouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInstance, NULL);
-
+	//AfxMessageBox(L"");
 }
 
 
@@ -37,7 +37,7 @@ void PointsTracker::OnUnhookMouse()
 void PointsTracker::UnhookMouse()
 {
 	UnhookWindowsHookEx(MouseHook);
-}
+}*/
 
 int PointsTracker::getAngleABC(cv::Point2d a, cv::Point2d b, cv::Point2d c)
 {
@@ -146,6 +146,8 @@ void PointsTracker::GetScreenRatio()
 	captureVertical = (float)cap.get(cv::CAP_PROP_FRAME_HEIGHT);
 
 }
+
+
 void PointsTracker::initiateTracker()
 {
 	GetScreenRatio();
@@ -177,110 +179,24 @@ void PointsTracker::initiateTracker()
 	facialFilterX.alpha = ewmaAlpha;
 	facialFilterY.alpha = ewmaAlpha;
 
-	OnSetMousehook();
+	maxCornersCount = (int) minCornersCount * 1.7;
+
+	//OnSetMousehook();
 
 
 }
 
-
-bool PointsTracker::Tracking()
+void PointsTracker::preTrackingActions()
 {
+	// patch for detector threading
+	oldfaces = faces;
 
-
-{ 
-//	inptext = "elapsedSec= " + std::to_string(mMouseDlg->elapsedSeconds) + "secToOneClick= " + std::to_string(mMouseDlg->secToOneClickDuration) + "secToDoubleClick = " + std::to_string(mMouseDlg->secToDoubleClickDuration) + " allDuration = " + std::to_string(mMouseDlg->secDuration);
-	// rotatePie(elapsedSeconds, false, false, secSmile, secToOneClickDuration, secToDoubleClickDuration, secDuration);
-	smileAIDetectedFlag = false;
-	smileGeoDetectedFlag = false;
-
-	// set hook to detect mouse move
-	if (skipHook)
-	{
-		skipHook = false;
-		isGlobalMouseMove = false;
-	}
-	else if (isGlobalMouseMove)// if physical mouse moving
-	{
-		mMouseDlg->ShowWindow(SW_HIDE);
-			// stop monitoring dwell
-			mMouseDlg->dwellTimer.stop();
-			// set timer
-			moveLockTimer.start();
-			// tracker doesn't move cursor 
-			mouseHookPause = true;
-			// doesn't click
-			turnOffClick = true;		
-			// reset flag
-			isGlobalMouseMove = false;	
-	}
-
-
-
-	if (moveLockTimer.elapsedSeconds() > 0)
-	{
-		
-		OnUnhookMouse();
-	}
-
-	if (moveLockTimer.elapsedSeconds() > pauseTime)
-	{
-		mouseHookPause = false;
-		mMouseDlg->changePie(mMouseDlg->NEUTRAL);
-		if (!mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_SHOW);
-		moveLockTimer.stop();
-		if (!buttonStop) turnOffClick = false;
-	}
-
-	// possibility to start even when tracker stopped
-	if (buttonStop)
-	{
-		::SendMessage(hWnd, UWM_CUSTOMSTARTTRACK, NULL, 0);
-		GetCursorPos(&cursorPos);
-		if (cursorPos.y > buttonStartPosition.top && cursorPos.y < buttonStartPosition.bottom
-			&& cursorPos.x > buttonStartPosition.left && cursorPos.x < buttonStartPosition.right)
-		{
-
-			mMouseDlg->dwellDetecting(0);
-		}
-		else
-		{
-			mMouseDlg->dwellMouseLocked = true;
-			mMouseDlg->changePie(mMouseDlg->NEUTRAL);
-			if (mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_HIDE);
-		}
-	}
-	//inptext = "turnOffClick = " + std::to_string(turnOffClick) + "buttonStop = " + std::to_string(buttonStop) + "mouseHookPause = " + std::to_string(mouseHookPause) + "sec = " + std::to_string(pauseTime - moveLockTimer.elapsedSeconds());
-
-	if (!openFlag)
-	{
-		cv::destroyAllWindows();
-		return false;
-	}
-
-	cap.read(frame);
-
-	if (frame.empty())
-	{
-		MessageBox(NULL, _T("No captured frame"), NULL, NULL);
-		return false;
-	}
-
-
-
-
-	try {
-
-	//if (flipCameraFlag)cv::flip(frame, frame, 1);
-
-	// Convert input to greyscale 
-	cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
-
-	    // Detecting faces
-	    frontalFaceDetector.detectMultiScale(frame_gray, faces, 1.1, minFaceNeighbors, cv::CASCADE_FIND_BIGGEST_OBJECT | cv::CASCADE_DO_CANNY_PRUNING, cv::Size(65, 65));
-
+		frontalFaceDetector.detectMultiScale(frame_gray, faces, 1.1, minFaceNeighbors, cv::CASCADE_FIND_BIGGEST_OBJECT | cv::CASCADE_DO_CANNY_PRUNING, cv::Size(65, 65));
 		// if face detected
 		if (!faces.empty())
 		{
+			tempinptext = "";
+			mMouseDlg->changePie(mMouseDlg->NEUTRAL);
 			faceDetectedFlag = true;
 			faceInitiatedFlag = true;
 			// calculate ROI by face
@@ -307,13 +223,10 @@ bool PointsTracker::Tracking()
 
 		else // if face not detected
 		{
-
 			faceDetectedFlag = false;
-			if (showVideoFlag)
-			{
-				tempinptext = facetext;
-				cv::putText(frame, tempinptext, cv::Point(40, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
-			}
+			tempinptext = facetext;
+			mMouseDlg->changePie(mMouseDlg->LOSTFACE);
+
 			// if face not found move rectancle with tracking points
 			if (dMouse.x < cropToTrack.width && dMouse.y < cropToTrack.height)
 			{
@@ -331,13 +244,10 @@ bool PointsTracker::Tracking()
 
 		}
 
-		/////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////
-		// start tracking
+
 
 		// check crop borders to not exceed frame size
 		cropToTrack = calculateCrop(cropToTrack, frame_gray.size());
-		if (showVideoFlag) cv::rectangle(frame, cropToTrack, POINTCOLOR, 1, 8, 0);
 
 		if (needEqualize)
 		{
@@ -350,6 +260,54 @@ bool PointsTracker::Tracking()
 		boxWidth = (float)cropToTrack.width / boxRatio;
 		boxHeight = (float)cropToTrack.height / boxRatio;
 
+}
+
+
+bool PointsTracker::Tracking()
+{
+
+{ 
+
+		if (!openFlag)
+		{
+			cv::destroyAllWindows();
+			return false;
+		}
+
+		cap.read(frame);
+
+		if (frame.empty())
+		{
+			MessageBox(NULL, _T("No captured frame"), NULL, NULL);
+			return false;
+		}
+
+//	inptext = "elapsedSec= " + std::to_string(mMouseDlg->elapsedSeconds) + "secToOneClick= " + std::to_string(mMouseDlg->secToOneClickDuration) + "secToDoubleClick = " + std::to_string(mMouseDlg->secToDoubleClickDuration) + " allDuration = " + std::to_string(mMouseDlg->secDuration);
+	// rotatePie(elapsedSeconds, false, false, secSmile, secToOneClickDuration, secToDoubleClickDuration, secDuration);
+	smileAIDetectedFlag = false;
+	smileGeoDetectedFlag = false;
+
+	//inptext = "turnOffClick = " + std::to_string(turnOffClick) + "buttonStop = " + std::to_string(buttonStop) + "mouseHookPause = " + std::to_string(mouseHookPause) + "sec = " + std::to_string(pauseTime - moveLockTimer.elapsedSeconds());
+
+
+	try {
+
+	//if (flipCameraFlag)cv::flip(frame, frame, 1);
+
+	// Convert input to greyscale 
+	cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
+
+	if (showVideoFlag)
+	{
+
+		cv::putText(frame, tempinptext, cv::Point(40, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
+
+		cv::rectangle(frame, cropToTrack, POINTCOLOR, 1, 8, 0);	
+	}
+
+	/////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////
+	// start tracking
 
 		if (needToTrackerInit)
 		{
@@ -391,14 +349,21 @@ bool PointsTracker::Tracking()
 			trackingRectangle = calculateCrop(trackingRectangle, frame_gray.size());
 
 
-			for (int i = 0; i < activeTrackers; i++)if (!pointsT.empty())
+			boxWidth = (float)cropToTrack.width / boxRatio;
+			boxHeight = (float)cropToTrack.height / boxRatio;
+
+			for (int i = 0; i < activeTrackers; i++)
+				if (!pointsT.empty())
 				initFacialTracker(i, frame_gray(trackingRectangle));
 
 		}
 
+		else if (needToAddPoints)
+		{
+			addNewPoints();
+		}
 
 		calculateMosseTrackers(frame, frame_gray(trackingRectangle));
-
 
 		if (activeTrackers < minCornersCount)
 		{
@@ -456,17 +421,14 @@ bool PointsTracker::Tracking()
 		/////////////////////////////////////////////////////////////
 		// Geometrical smile detecting
 		if (detectSmileGeoFlag && faceDetectedFlag)
-		{
+		{		
+			// patch for detector threading
+			if (faces.empty()) faces = oldfaces;
 			// find facemarks
 			facemarkDetectedFlag = facemark->fit(frame_gray, faces, landmarks);
 			// if facemarks detected
 			if (facemarkDetectedFlag)geoSmileCalculation(frame, landmarks[0]);
-
 		}
-		// end process facemarks
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////
-		//end smile detecting
 
 	}// end try
 	catch (const std::exception& e)
@@ -487,18 +449,15 @@ bool PointsTracker::Tracking()
 		std::string str1 = e.what();
 
 		inptext = str1;
-		//tempinptext = str1;
-		//cv::putText(frame, tempinptext, cv::Point(60, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(CORRECTIONALERTCOLOR), 2, cv::LINE_AA);
-
-	//	
+	
 		//CString str2(str1.c_str());
 		//MessageBox(NULL, _T("Tracking exception") + str2, NULL, NULL);
 	}
 
-	cv::putText(frame, inptext, cv::Point(20, 20), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
+	if (showVideoFlag)cv::putText(frame, inptext, cv::Point(20, 20), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.5, cv::Scalar(255, 255, 255), 1, cv::LINE_AA);
 
 	if (showVideoFlag) imshow("view", frame);
-	int key2 = cv::waitKey(27);
+	int key2 = cv::waitKey(20);
 
 
 	if (!mouseHookPause && !buttonStop)
@@ -516,7 +475,10 @@ bool PointsTracker::Tracking()
 	}
 
 
-	OnUnhookMouse();
+//	inptext = inptext + "elapsedSeconds = " + std::to_string(mMouseDlg->mouseTimer.elapsedSeconds()) + ", smileMouseLocked = " + std::to_string(mMouseDlg->smileMouseLocked) + ", secQuickClick = " + std::to_string(mMouseDlg->secQuickClick);
+
+
+	//OnUnhookMouse();
 	}
 	return true;
 }
@@ -528,19 +490,17 @@ bool PointsTracker::initFacialTracker(int i, cv::Mat& _frame_gray)
 	pointsT[i].x -= trackingRectangle.x;
 	pointsT[i].y -= trackingRectangle.y;
 	pointsMosse[i].facialTracker = cv::legacy::TrackerMOSSE::create();
-	boxWidth = (float)cropToTrack.width / boxRatio;
-	boxHeight = (float)cropToTrack.height / boxRatio;
 
 	pointsMosse[i].facialRectangle.width = boxWidth;
 	pointsMosse[i].facialRectangle.height = boxHeight;
 
 	pointsMosse[i].facialRectangle.x = pointsT[i].x - boxWidth / 2;
 	pointsMosse[i].facialRectangle.y = pointsT[i].y - boxHeight / 2;
-	pointsMosse[i].facialTracker->init(_frame_gray, pointsMosse[i].facialRectangle);
-
 
 	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
 	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
+
+	pointsMosse[i].needInit = false;
 
 	pointsMosse[i].pointNew = pointsT[i];
 	pointsMosse[i].pointOld = pointsT[i];
@@ -571,7 +531,7 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 		cv::Point _newt(pointsMosse[i].pointNew.x + boxWidth / 2, pointsMosse[i].pointNew.y + boxHeight / 2);
 		_newt.x += trackingRectangle.x;
 		_newt.y += trackingRectangle.y;
-		//cv::Point _oldt(pointsMosse[i].pointOld.x + boxWidth / 2, pointsMosse[i].pointOld.y + boxHeight / 2);
+
 		if (found)
 		{
 
@@ -582,25 +542,17 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 				{
 					pColor = CORRECTIONCOLOR;
 
-					if (pointsMosse[i].pointNew.x == 0 && pointsMosse[i].pointNew.y == 0)
-					{
-						pointsMosse[i].pointDelta.x = 0.0f;
-						pointsMosse[i].pointDelta.y = 0.0f;
 
-						pointsMosse[i].pointOld = pointsMosse[i].pointNew;
-						continue;
-					}
-
-					if (pointsMosse[i].pointOld.x == 0 && pointsMosse[i].pointOld.y == 0)
-					{
-						pointsMosse[i].pointDelta.x = 0.0f;
-						pointsMosse[i].pointDelta.y = 0.0f;
-						continue;
-					}
+						if (pointsMosse[i].needInit) // skip movement for new
+						{
+							pointsMosse[i].needInit = false;
+							pointsMosse[i].pointOld = pointsMosse[i].pointNew;
+							continue;
+						}
 
 						pointsMosse[i].pointDelta = pointsMosse[i].pointNew - pointsMosse[i].pointOld;
 
-						if (abs(pointsMosse[i].pointDelta.x) > cropToTrack.width  || abs(pointsMosse[i].pointDelta.y) > cropToTrack.height )
+						if (abs(pointsMosse[i].pointDelta.x) > boxWidth || abs(pointsMosse[i].pointDelta.y) > boxWidth)
 						{
 							pointsMosse[i].pointOld = pointsMosse[i].pointNew;
 							continue;
@@ -609,7 +561,6 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 						else
 						{
 
-							//inptext = "dx = " + std::to_string(pointsT[1][i].x) + " dy  = " + std::to_string(pointsT[1][i].y);
 							dxTrackPointSum += pointsMosse[i].pointDelta.x;
 							dyTrackPointSum += pointsMosse[i].pointDelta.y;
 							if (showVideoFlag)
@@ -620,41 +571,144 @@ void PointsTracker::calculateMosseTrackers(cv::Mat& _frame, cv::Mat& _frame_gray
 						
 							activeTrackers++;
 						}
-
+						pointsMosse[i].pointOld = pointsMosse[i].pointNew;
 				}
 
-			else
+			else // delete if out of area
 			{
-				pColor = CORRECTIONALERTCOLOR;
+				pointsMosse.erase(pointsMosse.begin() + i);
+				i--;
+				continue;
 			}
 
 		}
-		else
+		else // delete if not found
 		{
 			pointsMosse.erase(pointsMosse.begin() + i);
 			i--;
 			continue;
 		}
 		if (showVideoFlag)cv::circle(_frame, _newt, 3, pColor, cv::FILLED);
-		cv::rectangle(frame, trackingRectangle, CORRECTIONCOLOR, 2, 8, 0);
-		pointsMosse[i].pointOld = pointsMosse[i].pointNew;
+		cv::rectangle(frame, trackingRectangle, CORRECTIONCOLOR, 2, 8, 0);	
 	}
 
-	if(!skipframe && !mouseHookPause)
+	if(!skipframe && !mouseHookPause && (dxTrackPointSum || dyTrackPointSum))
 	{ 
 		
 		
 		dMouse.x = (float)dxTrackPointSum / activeTrackers;
 		dMouse.y = (float)dyTrackPointSum / activeTrackers;
 		if (flipCameraFlag) dMouse.x = -dMouse.x;
-				//dMouseOld = dMouse;
 		calclMousePos(dMouse, cropToTrack.width);
 		mds = sqrt(dMouse.x * dMouse.x + dMouse.y * dMouse.y);
 
-		if (activeTrackers < minCornersCount) needToTrackerInit = true;
-
 	}
+
+	if (activeTrackers < minCornersCount - 2) needToTrackerInit = true;
+
+	if (activeTrackers < minCornersCount + 3) needToAddPoints = true;
+		else needToAddPoints = false;
+
 	skipframe = false;
+
+}
+
+
+
+void PointsTracker::addNewPoints()
+{
+	cv::Mat mask(frame_gray.size(), CV_8UC1, cv::Scalar(0));
+	mask(cropToTrack).setTo(cv::Scalar(255));
+
+	// minimum dist between tracking points 
+	minDist = cropToTrack.width / minDistRatio;
+
+	//float minPointDist = cropToTrack.width / 10;
+
+	pointsT.clear();
+
+	goodFeaturesToTrack(frame_gray, pointsT, minCornersCount, 0.01, minDist, mask, 3, 3, 0, 0.04);
+	if (!pointsT.empty()) 	cornerSubPix(frame_gray, pointsT, cvSize(10, 10), cv::Size(-1, -1), termcrit);
+	else return;
+
+	float ptdx = boxWidth / 2 + trackingRectangle.x;
+	float ptdy = boxHeight / 2 + trackingRectangle.y;
+
+	boxWidth = (float)cropToTrack.width / boxRatio;
+	boxHeight = (float)cropToTrack.height / boxRatio;
+
+	cv::Point2f candidate;
+
+	bool isCandidateOK = false;
+
+	int countToAdd = 0;
+
+	float minPtDist = minDist / 2;
+
+	for (cv::Point2f ptCorner : pointsT)
+	{
+
+		if (ptCorner.x <= cropToTrack.x ||
+			ptCorner.x >= cropToTrack.x + cropToTrack.width ||
+			ptCorner.y <= cropToTrack.y ||
+			ptCorner.y >= cropToTrack.y + cropToTrack.height)
+			continue;
+
+		candidate = ptCorner;
+
+		for (PointMosse ptMosse : pointsMosse)
+		{
+			if (ptMosse.facialRectangle.x + ptdx - ptCorner.x > minPtDist || ptMosse.facialRectangle.y + ptdy - ptCorner.y > minPtDist)
+			{
+				isCandidateOK = true;
+			}
+			else
+			{
+				isCandidateOK = false;
+				break;
+			}
+		}
+
+		if (isCandidateOK)
+		{
+			countToAdd++;
+			addFacialTracker(candidate, frame_gray(trackingRectangle));
+			if (showVideoFlag) circle(frame, candidate, 3, POINTCOLOR, cv::FILLED);
+			if (countToAdd > 2) return;
+			isCandidateOK = false;
+		}
+	}
+
+}
+
+
+void PointsTracker::addFacialTracker(cv::Point2f _pt, cv::Mat& _frame_gray)
+{
+
+	_pt.x -= trackingRectangle.x;
+	_pt.y -= trackingRectangle.y;
+
+	PointMosse _pointMosse;
+	_pointMosse.facialTracker = cv::legacy::TrackerMOSSE::create();
+
+
+	_pointMosse.facialRectangle.width = boxWidth;
+	_pointMosse.facialRectangle.height = boxHeight;
+
+	_pointMosse.facialRectangle.x = _pt.x - boxWidth / 2;
+	_pointMosse.facialRectangle.y = _pt.y - boxHeight / 2;
+	_pointMosse.facialTracker->init(_frame_gray, _pointMosse.facialRectangle);
+
+	_pointMosse.pointNew = _pt;
+	_pointMosse.pointOld = _pt;
+
+	_pointMosse.needInit = true;
+
+	pointsMosse.push_back(_pointMosse);
+
+	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
+	//pointsMosse[i].facialFilterX.alpha = ewmaAlpha;
+
 
 }
 

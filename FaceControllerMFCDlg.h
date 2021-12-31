@@ -28,16 +28,22 @@ public:
 	TCHAR pathToFolder[MAX_PATH];
 	std::string sPathToFolder;
 
+
 	bool isAutostart = true;
 #define ID_TIMER_1 10000
 #define ID_TIMER_2 1000
 #define ID_TIMER_LOCK 3000
 #define ID_TIMER_2CLICKS 200
+#define ID_TIMER_MOVELOCK 100
 #define UWM_CUSTOMRIGHTCLICK (WM_APP+1)
 #define UWM_CUSTOMDRAGMAIN (WM_APP+4)
 #define UWM_CUSTOMDRAGOPTION (WM_APP+5)
 #define UWM_CUSTOMSTARTTRACK (WM_APP+6)
 #define UWM_CUSTOMCLICK (WM_APP+7)
+	
+	int faceFrames = 5;
+	float pauseTime = 4;
+	CRect buttonStartPosition;
 	CRect clientPosition;
 	RECT w;
 	int autostartSeconds = 0;
@@ -211,6 +217,7 @@ public:
 	void readSerialized();
 	void resetDefaults();
 	void changeLanguage(int _langNum);
+	void onApplyActions();
 
 	void force1Click();
 
@@ -221,11 +228,17 @@ public:
 	void minimizeW();
 	void maximizeW();
 
-	void MouseActions();
+	void OnSetMousehook();
+	void OnUnhookMouse();
+	void UnhookMouse();
+
+//	void FaceDetection();
 	void TrackingActions();
+	void MouseActions();
 
 //	UINT __cdecl RecExtractThreadCtrlFunc(LPVOID pParam);
 
+	// https://www.cyberforum.ru/cpp-beginners/thread1746523.html
 
 	static void thread_proc1(void* param) {
 		CFaceControllerMFCDlg* pthis = (CFaceControllerMFCDlg*)param;

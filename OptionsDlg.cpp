@@ -63,7 +63,8 @@ void OptionsDlg::OnClose()
 	pCAdvancedTab.flipCameraFlag = back_flipCameraFlag;
 	pCAdvancedTab.needEqualize = back_needEqualize;
 	pCAdvancedTab.fSliderEWMA = back_fSliderEWMA;
-//	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
+	pCAdvancedTab.iSliderMinNum = back_iSliderMinNum;
+	pCAdvancedTab.iSliderFaceFrames = back_iSliderFaceFrames;
 	pCAdvancedTab.fSliderAcceleration = back_fSliderAcceleration;
 	pCAdvancedTab.iSliderFace = back_iSliderFace;
 	pCAdvancedTab.mEditKeyboard = back_mEditKeyboard;
@@ -107,10 +108,12 @@ void OptionsDlg::OnBnClickedCancel()
 	pCAdvancedTab.flipCameraFlag = back_flipCameraFlag;
 	pCAdvancedTab.needEqualize = back_needEqualize;
 	pCAdvancedTab.fSliderEWMA = back_fSliderEWMA;
-//	pCAdvancedTab.fSliderMarks = back_fSliderMarks;
+	pCAdvancedTab.iSliderMinNum = back_iSliderMinNum;
+	pCAdvancedTab.iSliderFaceFrames = back_iSliderFaceFrames;
 	pCAdvancedTab.fSliderAcceleration = back_fSliderAcceleration;
 	pCAdvancedTab.iSliderFace = back_iSliderFace;
 	pCAdvancedTab.mEditKeyboard = back_mEditKeyboard;
+
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDCANCEL, 0);
 

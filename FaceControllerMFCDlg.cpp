@@ -24,6 +24,43 @@ BEGIN_MESSAGE_MAP(CFaceControllerMFCApp, CWinApp)
 END_MESSAGE_MAP()
 
 
+HHOOK MouseHook;
+bool isGlobalMouseMove = false;
+
+
+LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	MOUSEHOOKSTRUCT* pMouseStruct = (MOUSEHOOKSTRUCT*)lParam;
+	if (pMouseStruct != NULL) {
+		if (wParam == WM_MOUSEMOVE)
+		{
+			isGlobalMouseMove = true;
+		}
+		else isGlobalMouseMove = false;
+	}
+	return CallNextHookEx(MouseHook, nCode, wParam, lParam);
+}
+
+
+void CFaceControllerMFCDlg::OnSetMousehook()
+{
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	MouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookProc, hInstance, NULL);
+	//AfxMessageBox(L"");
+}
+
+
+void CFaceControllerMFCDlg::OnUnhookMouse()
+{
+	UnhookWindowsHookEx(MouseHook);
+	OnSetMousehook();
+}
+
+void CFaceControllerMFCDlg::UnhookMouse()
+{
+	UnhookWindowsHookEx(MouseHook);
+}
+
 
 // CFaceControllerMFCDlg dialog
 
@@ -450,7 +487,7 @@ void CFaceControllerMFCDlg::OnBnClickedStart()
 		trackerPtr->buttonStop = true;
 		pButton_start->SetBitmap(bmp_play);
 		trackerPtr->turnOffClick = true;
-		trackerPtr->OnUnhookMouse();
+		OnUnhookMouse();
 		trackerPtr->mMouseDlg->ShowWindow(SW_HIDE);
 	}
 
@@ -489,35 +526,112 @@ void CFaceControllerMFCDlg::OnBnClickedStart()
 
 		needTrackerInitiate = false;
 
+		
+		// Moving mouse thread
+		std::thread t1(thread_proc1, this);
+		t1.detach();
+		
+		// Face detection thread
+		std::thread t2(thread_proc2, this);
+		t2.detach();
+
+		OnSetMousehook();
+
 		////////////
 		// main flow
 		////////////
 		for (;;)
 		{
-			
 
-			if (!trackerPtr->mouseHookPause)
+			// set hook to detect mouse move///////
+
+			// ignore tracker action
+			if (trackerPtr->skipHook)
 			{
-				mMouseDlg->moveMouseDlg(trackerPtr->mouseX, trackerPtr->mouseY);
+				trackerPtr->skipHook = false;
+				isGlobalMouseMove = false;
+			}
+			else if (isGlobalMouseMove)// if physical mouse moving
+			{
+				mMouseDlg->ShowWindow(SW_HIDE);
+				// stop monitoring dwell
+				mMouseDlg->dwellTimer.stop();
+				// set timer
+				SetTimer(ID_TIMER_MOVELOCK, pauseTime*1000, NULL);
+				// tracker doesn't move cursor
+				trackerPtr->mouseHookPause = true;
+				// doesn't click
+				trackerPtr->turnOffClick = true;
+				// reset flag
+				isGlobalMouseMove = false;
 			}
 
+			if (trackerPtr->mouseHookPause)
+			{
+				OnUnhookMouse();
+			}
+			/////////////////////////////////////////
+
+
+			// possibility to start even when clicks stopped/////////
+			if (trackerPtr->buttonStop)
+			{
+				startwnd->GetWindowRect(buttonStartPosition);
+				GetCursorPos(&cursorPos);
+				if (cursorPos.y > buttonStartPosition.top && cursorPos.y < buttonStartPosition.bottom
+					&& cursorPos.x > buttonStartPosition.left && cursorPos.x < buttonStartPosition.right)
+				{
+					mMouseDlg->dwellDetecting(0);
+				}
+				else
+				{
+					mMouseDlg->dwellMouseLocked = true;
+					if (mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_HIDE);
+				}
+			}
+			/////////////////////////////////////////////////////////
+
+			// TRACKING
 			if (!trackerPtr->Tracking()) break;
 
 		} 
 
-		trackerPtr->UnhookMouse();
+		UnhookMouse();
 	}
 
 }
 
+// Moving mouse
+void CFaceControllerMFCDlg::MouseActions()
+{
+	while (trackerPtr->openFlag)
+	{
 
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+			if (!trackerPtr->mouseHookPause)
+			{
+				mMouseDlg->moveMouseDlg(trackerPtr->mouseX, trackerPtr->mouseY);
+			}
+	}
+}
+
+// Face detection
+void CFaceControllerMFCDlg::TrackingActions()
+{
+	while (trackerPtr->openFlag)
+	{
+		trackerPtr->preTrackingActions();
+		if(trackerPtr->faceDetectedFlag) std::this_thread::sleep_for(std::chrono::milliseconds(faceFrames*100));
+		else std::this_thread::sleep_for(std::chrono::milliseconds(faceFrames * 20));
+	}
+}
 
 void CFaceControllerMFCDlg::OnBnClickedOk()
 {
 	serializeChanges();
 	trackerPtr->openFlag = false;
 	trackerPtr->cap.release();
-	trackerPtr->UnhookMouse();
+	UnhookMouse();
 	CDialogEx::OnOK();
 }
 
@@ -526,7 +640,7 @@ void CFaceControllerMFCDlg::OnClose()
 	serializeChanges();
 	trackerPtr->openFlag = false;
 	trackerPtr->cap.release();
-	trackerPtr->UnhookMouse();
+	UnhookMouse();
 	CDialogEx::OnClose();
 
 }
@@ -605,9 +719,9 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 		trackerPtr->skipHook = true;
 		return 0;
 
-	case UWM_CUSTOMSTARTTRACK:
+	/*case UWM_CUSTOMSTARTTRACK:
 			startwnd->GetWindowRect(trackerPtr->buttonStartPosition);
-		return 0;
+		return 0;*/
 
 	case UWM_CUSTOMRIGHTCLICK:
 		if (trackerPtr->mMouseDlg->prevRightClick == trackerPtr->mMouseDlg->DOUBLE_CL)OnBnClickedButtonClick2x();
@@ -678,7 +792,7 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 			return 0;
 
 			case IDC_SLIDER_ONINPUT:
-				trackerPtr->pauseTime = mOptionsDlg.pCAdvancedTab.fSliderOnInput;
+				pauseTime = mOptionsDlg.pCAdvancedTab.fSliderOnInput;
 				return 0;
 
 			case IDC_CHECK_AUTOSTART:
@@ -690,13 +804,13 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				trackerPtr->needToTrackerInit = true;
 				return 0;
 
-			case IDC_SLIDER_FACE_MINDIST:
-				trackerPtr->maxCornersCount = mOptionsDlg.pCAdvancedTab.iSliderMaxNum;
-				trackerPtr->needToTrackerInit = true;
+			case IDC_SLIDER_FACE_FRAMES:
+				faceFrames = mOptionsDlg.pCAdvancedTab.iSliderFaceFrames - 1;
 			return 0;
 
 			case IDC_SLIDER_FACE_MINNUM:
 				trackerPtr->minCornersCount = mOptionsDlg.pCAdvancedTab.iSliderMinNum;
+				trackerPtr->maxCornersCount = (int)trackerPtr->minCornersCount * 1.7;
 				trackerPtr->needToTrackerInit = true;
 			return 0;
 
@@ -792,37 +906,25 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				trackerPtr->flipCameraFlag = mOptionsDlg.back_flipCameraFlag;
 				trackerPtr->needEqualize = mOptionsDlg.back_needEqualize;
 				trackerPtr->ewmaAlpha = mOptionsDlg.back_fSliderEWMA;
-	//			trackerPtr->accumMoveRatio = mOptionsDlg.back_fSliderMarks;
 				trackerPtr->velocitySlider = mOptionsDlg.back_fSliderAcceleration;
 				trackerPtr->minFaceNeighbors = mOptionsDlg.back_iSliderFace;
 				trackerPtr->editKeyboard = mOptionsDlg.back_mEditKeyboard;
-				trackerPtr->pauseTime = mOptionsDlg.back_fSliderOnInput;
+				pauseTime = mOptionsDlg.back_fSliderOnInput;
+				faceFrames = mOptionsDlg.back_iSliderFaceFrames;
+				trackerPtr->minCornersCount = mOptionsDlg.back_iSliderMinNum;
+
 
 				return 0;
 
 			case IDC_APPLY:
 
-				mOptionsDlg.back_fSliderSpeedHorisontal = trackerPtr->horSensitivity;
-				mOptionsDlg.back_fSliderSpeedVertical = trackerPtr->verSensitivity;
-				mOptionsDlg.back_iSliderSmileAngle = trackerPtr->smilingTriggerAngle;
-				mOptionsDlg.back_iSliderSmileSensitivity = trackerPtr->minNeighborsSmileDetector;
-				mOptionsDlg.back_fSliderDwellDispl = mMouseDlg->dwellDisp;
-				mOptionsDlg.back_fSliderDwellTime = mMouseDlg->dwellDuration;
-				mOptionsDlg.back_fSliderQuickTime = mMouseDlg->secQuickClick;
-				mOptionsDlg.back_fSlider1x = mMouseDlg->secSmile;
-				mOptionsDlg.back_fSlider2x = mMouseDlg->secOneClick;
-				mOptionsDlg.back_fSliderCancel = mMouseDlg->secDoubleClick;
-				mOptionsDlg.back_fSliderTimeToDwell = mMouseDlg->secDwellStartTime;
-				mOptionsDlg.back_needSound = trackerPtr->mMouseDlg->needSound;
+				onApplyActions();
 
-				mOptionsDlg.back_flipCameraFlag = trackerPtr->flipCameraFlag;
-				mOptionsDlg.back_needEqualize = trackerPtr->needEqualize;
-				mOptionsDlg.back_fSliderEWMA = trackerPtr->ewmaAlpha;
-	//			mOptionsDlg.back_fSliderMarks = trackerPtr->accumMoveRatio;
-				mOptionsDlg.back_fSliderAcceleration = trackerPtr->velocitySlider;
-				mOptionsDlg.back_iSliderFace = trackerPtr->minFaceNeighbors;
-				mOptionsDlg.back_mEditKeyboard = trackerPtr->editKeyboard;
-				mOptionsDlg.back_fSliderOnInput = trackerPtr->pauseTime;
+				return 0;
+
+			case IDOK:
+
+				onApplyActions();
 
 				return 0;
 
@@ -911,10 +1013,45 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 
 			return 0;
 
+		case ID_TIMER_MOVELOCK:
+			trackerPtr->mouseHookPause = false;
+			mMouseDlg->changePie(mMouseDlg->NEUTRAL);
+			if (!mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_SHOW);
+			KillTimer(ID_TIMER_MOVELOCK);
+			if (!trackerPtr->buttonStop) trackerPtr->turnOffClick = false;
+
+			return 0;
+
 		}
 	}
 
 	return CDialogEx::WindowProc(message, wParam, lParam);
+}
+
+void CFaceControllerMFCDlg::onApplyActions()
+{
+	mOptionsDlg.back_fSliderSpeedHorisontal = trackerPtr->horSensitivity;
+	mOptionsDlg.back_fSliderSpeedVertical = trackerPtr->verSensitivity;
+	mOptionsDlg.back_iSliderSmileAngle = trackerPtr->smilingTriggerAngle;
+	mOptionsDlg.back_iSliderSmileSensitivity = trackerPtr->minNeighborsSmileDetector;
+	mOptionsDlg.back_fSliderDwellDispl = mMouseDlg->dwellDisp;
+	mOptionsDlg.back_fSliderDwellTime = mMouseDlg->dwellDuration;
+	mOptionsDlg.back_fSliderQuickTime = mMouseDlg->secQuickClick;
+	mOptionsDlg.back_fSlider1x = mMouseDlg->secSmile;
+	mOptionsDlg.back_fSlider2x = mMouseDlg->secOneClick;
+	mOptionsDlg.back_fSliderCancel = mMouseDlg->secDoubleClick;
+	mOptionsDlg.back_fSliderTimeToDwell = mMouseDlg->secDwellStartTime;
+	mOptionsDlg.back_needSound = trackerPtr->mMouseDlg->needSound;
+	mOptionsDlg.back_iSliderFaceFrames = faceFrames + 1;
+	mOptionsDlg.back_iSliderMinNum = trackerPtr->minCornersCount;
+	mOptionsDlg.back_flipCameraFlag = trackerPtr->flipCameraFlag;
+	mOptionsDlg.back_needEqualize = trackerPtr->needEqualize;
+	mOptionsDlg.back_fSliderEWMA = trackerPtr->ewmaAlpha;
+	mOptionsDlg.back_fSliderAcceleration = trackerPtr->velocitySlider;
+	mOptionsDlg.back_iSliderFace = trackerPtr->minFaceNeighbors;
+	mOptionsDlg.back_mEditKeyboard = trackerPtr->editKeyboard;
+	mOptionsDlg.back_fSliderOnInput = pauseTime;
+
 }
 
 
@@ -932,21 +1069,7 @@ void CFaceControllerMFCDlg::OnBnClickedCheckAutostart()
 		isAutostart = false;
 	}
 }
-/*
-BOOL CFaceControllerMFCDlg::PreTranslateMessage(MSG* pMsg)
-{
-	m_ToolTip.RelayEvent(pMsg);
 
-
-
-	if (pMsg->hwnd == pButton_chrome->m_hWnd && pMsg->message == WM_MOUSEMOVE)
-	{
-		SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
-	}
-
-	return CDialog::PreTranslateMessage(pMsg);
-}
-*/
 
 
 void CFaceControllerMFCDlg::OnBnClickedButtonGeo()
@@ -1133,8 +1256,8 @@ void CFaceControllerMFCDlg::serializeChanges()
 		fs << "needAutostart" << needAutostart;
 		fs << "minDistRatio" << trackerPtr->minDistRatio;
 		fs << "minCornersCount" << trackerPtr->minCornersCount;
-		fs << "maxCornersCount" << trackerPtr->maxCornersCount;
-		fs << "pauseTime" << trackerPtr->pauseTime;
+		fs << "faceFrames" << faceFrames;
+		fs << "pauseTime" << pauseTime;
 		fs << "needSound" << trackerPtr->mMouseDlg->needSound;
 		fs << "langNum" << langNum;
 		fs << "enableMultithreading" << enableMultithreading;
@@ -1177,8 +1300,8 @@ void CFaceControllerMFCDlg::readSerialized()
 		fs["needAutostart"] >> needAutostart;
 		fs["minDistRatio"] >> trackerPtr->minDistRatio;
 		fs["minCornersCount"] >> trackerPtr->minCornersCount;
-		fs["maxCornersCount"] >> trackerPtr->maxCornersCount;
-		fs["pauseTime"] >> trackerPtr->pauseTime;
+		fs["faceFrames"] >> faceFrames;
+		fs["pauseTime"] >> pauseTime;
 		fs["needSound"] >> trackerPtr->mMouseDlg->needSound;
 		fs["langNum"] >> langNum;
 		fs["enableMultithreading"] >> enableMultithreading;
@@ -1221,8 +1344,8 @@ void CFaceControllerMFCDlg::resetDefaults()
 		fs["needEqualize"] >> trackerPtr->needEqualize;
 		fs["minDistRatio"] >> trackerPtr->minDistRatio;
 		fs["minCornersCount"] >> trackerPtr->minCornersCount;
-		fs["maxCornersCount"] >> trackerPtr->maxCornersCount;
-		fs["pauseTime"] >> trackerPtr->pauseTime;
+		fs["faceFrames"] >> faceFrames;
+		fs["pauseTime"] >> pauseTime;
 		fs["needSound"] >> trackerPtr->mMouseDlg->needSound;
 		fs["enableMultithreading"] >> enableMultithreading;
 	}
@@ -1251,10 +1374,10 @@ void CFaceControllerMFCDlg::initSettings()
 	mOptionsDlg.pCAdvancedTab.mSliderAcceleration.SetPos(trackerPtr->velocitySlider * 10);
 	mOptionsDlg.pCAdvancedTab.mSliderFace.SetPos(trackerPtr->minFaceNeighbors);
 	mOptionsDlg.pCAdvancedTab.mSliderFaceMinNum.SetPos(trackerPtr->minCornersCount);
-	mOptionsDlg.pCAdvancedTab.mSliderFaceMaxNum.SetPos(trackerPtr->maxCornersCount);
+	mOptionsDlg.pCAdvancedTab.mSliderFaceFrames.SetPos(faceFrames + 1);
 	mOptionsDlg.pCAdvancedTab.mSliderCustom.SetPos(trackerPtr->minDistRatio);
 	mOptionsDlg.pCAdvancedTab.mSliderEWMA.SetPos(trackerPtr->ewmaAlpha * 100);
-	mOptionsDlg.pCAdvancedTab.mSliderOnInput.SetPos(trackerPtr->pauseTime * 10);
+	mOptionsDlg.pCAdvancedTab.mSliderOnInput.SetPos(pauseTime * 10);
 	mOptionsDlg.pCAdvancedTab.mCheckSound.SetCheck(trackerPtr->mMouseDlg->needSound);
 
 
@@ -1273,40 +1396,17 @@ void CFaceControllerMFCDlg::initSettings()
 	mOptionsDlg.pCMainTab.fSlider2x = mMouseDlg->secOneClick;
 	mOptionsDlg.pCMainTab.fSliderCancel = mMouseDlg->secDoubleClick;
 	mOptionsDlg.pCMainTab.fSliderTimeToDwell = mMouseDlg->secDwellStartTime;
-	mOptionsDlg.pCAdvancedTab.fSliderOnInput = trackerPtr->pauseTime;
-//	mOptionsDlg.pCAdvancedTab.fSliderMarks = trackerPtr->accumMoveRatio;
+	mOptionsDlg.pCAdvancedTab.fSliderOnInput = pauseTime;
+	mOptionsDlg.pCAdvancedTab.iSliderFaceFrames = faceFrames - 1;
 	mOptionsDlg.pCAdvancedTab.fSliderAcceleration = trackerPtr->velocitySlider;
 	trackerPtr->velocityK = trackerPtr->velocitySlider * 0.002 - 0.0014;
-	mOptionsDlg.pCAdvancedTab.fSliderOnInput = trackerPtr->pauseTime;
+	mOptionsDlg.pCAdvancedTab.fSliderOnInput = pauseTime;
 	mOptionsDlg.pCAdvancedTab.iSliderFace = trackerPtr->minFaceNeighbors;
 	mOptionsDlg.pCAdvancedTab.mEditKeyboard = trackerPtr->editKeyboard;
 	mOptionsDlg.pCAdvancedTab.fSliderEWMA = trackerPtr->ewmaAlpha;
 
 	// save for cancel
-
-	mOptionsDlg.back_fSliderSpeedHorisontal  = trackerPtr->horSensitivity;
-	mOptionsDlg.back_fSliderSpeedVertical = trackerPtr->verSensitivity;
-	mOptionsDlg.back_iSliderSmileAngle = trackerPtr->smilingTriggerAngle;
-	mOptionsDlg.back_iSliderSmileSensitivity = trackerPtr->minNeighborsSmileDetector;
-	mOptionsDlg.back_fSliderDwellDispl = mMouseDlg->dwellDisp;
-	mOptionsDlg.back_fSliderDwellTime = mMouseDlg->dwellDuration;
-	mOptionsDlg.back_fSliderQuickTime = mMouseDlg->secQuickClick;
-	mOptionsDlg.back_fSlider1x = mMouseDlg->secSmile;
-	mOptionsDlg.back_fSlider2x = mMouseDlg->secOneClick;
-	mOptionsDlg.back_fSliderCancel = mMouseDlg->secDoubleClick;
-	mOptionsDlg.back_fSliderTimeToDwell = mMouseDlg->secDwellStartTime;
-	mOptionsDlg.back_fSliderOnInput = trackerPtr->pauseTime;
-	mOptionsDlg.back_needSound = trackerPtr->mMouseDlg->needSound;
-
-	mOptionsDlg.back_flipCameraFlag = trackerPtr->flipCameraFlag;
-	mOptionsDlg.back_needEqualize = trackerPtr->needEqualize;
-	mOptionsDlg.back_fSliderEWMA = trackerPtr->ewmaAlpha;
-//	mOptionsDlg.back_fSliderMarks = trackerPtr->accumMoveRatio;
-	mOptionsDlg.back_fSliderAcceleration = trackerPtr->velocitySlider;
-	mOptionsDlg.back_iSliderFace = trackerPtr->minFaceNeighbors;
-	mOptionsDlg.back_minFaceNeighbors = trackerPtr->minFaceNeighbors;
-	mOptionsDlg.back_editKeyboard = trackerPtr->editKeyboard;
-
+	onApplyActions();
 
 
 	mOptionsDlg.pCMainTab.UpdateData(FALSE);

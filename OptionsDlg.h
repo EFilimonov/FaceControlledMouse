@@ -59,6 +59,8 @@ public:
 	float back_fSliderOnInput;
 	int back_iSliderFace;
 	int back_minFaceNeighbors;
+	int back_iSliderMinNum;
+	int back_iSliderFaceFrames;
 
 	CString back_mEditKeyboard;
 

@@ -32,8 +32,8 @@
 <statictext027>"Threshold (AI): "</statictext027>
 <statictext028>"Cells/width: "</statictext028>
 <statictext029>"Min marks: "</statictext029>
-<statictext030>"Max marks: "</statictext030>
-<statictext031>"Path to onscreen application"</statictext031>
+<statictext030>"Face/Frames: "</statictext030>
+<statictext031>"Path to onscreen application:"</statictext031>
 <statictext032>"Reset default settings"</statictext032>
 <statictext1>"Русский"</statictext1>
 <statictext10>""</statictext10>
@@ -66,8 +66,8 @@
 <statictext127>"Порог распозн. (AI): "</statictext127>
 <statictext128>"Ячейки / ширина: "</statictext128>
 <statictext129>"Мин. точек: "</statictext129>
-<statictext130>"Макс. точек: "</statictext130>
-<statictext131>"Путь к экранному приложению"</statictext131>
+<statictext130>"Лицо/FPS: "</statictext130>
+<statictext131>"Путь к экранному приложению:"</statictext131>
 <statictext132>"Сбросить настройки"</statictext132>
 <statictext2>"Українська"</statictext2>
 <statictext20>""</statictext20>
@@ -100,7 +100,7 @@
 <statictext227>"Поріг розпізн. (AI): "</statictext227>
 <statictext228>"Сітка / ширина: "</statictext228>
 <statictext229>"Мін. точок: "</statictext229>
-<statictext230>"Макс. точок: "</statictext230>
-<statictext231>"Шлях до екранної програми"</statictext231>
+<statictext230>"Обличчя/FPS: "</statictext230>
+<statictext231>"Шлях до екранної програми:"</statictext231>
 <statictext232>"Скинути налаштування"</statictext232>
 </opencv_storage>
