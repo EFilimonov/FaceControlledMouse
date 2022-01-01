@@ -74,6 +74,7 @@ BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_LANGUAGE, &CAdvancedTab::OnCbnSelchangeComboLanguage)
 	ON_BN_CLICKED(IDC_CHECK_THREADING, &CAdvancedTab::OnBnClickedCheckThreading)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_FRAMES, &CAdvancedTab::OnNMCustomdrawSliderFaceFrames)
+	ON_BN_CLICKED(IDC_BUTTON_PATH, &CAdvancedTab::OnBnClickedButtonPath)
 END_MESSAGE_MAP()
 
 
@@ -82,15 +83,16 @@ BOOL CAdvancedTab::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 	hWnd = AfxGetApp()->m_pMainWnd->m_hWnd;
-	mSliderEWMA.SetRange(1, 60);
+	mSliderEWMA.SetRange(1, 80);
 //	mSliderMarks.SetRange(30, 98);
 	mSliderAcceleration.SetRange(10, 50);
 	mSliderFace.SetRange(2, 100);
 //	mSliderFaceMaxNum.SetRange(10, 25);
 	mSliderFaceMinNum.SetRange(3, 15);
 	mSliderCustom.SetRange(1, 10);
-	mSliderOnInput.SetRange(0.01, 100);
+	mSliderOnInput.SetRange(2, 100);
 	mSliderFaceFrames.SetRange(1, 10);
+
 
 	if (IsMyProgramRegisteredForStartup(L"Face_Controlled_Mouse"))
 	{
@@ -184,7 +186,7 @@ void CAdvancedTab::OnNMCustomdrawSliderOninput(NMHDR* pNMHDR, LRESULT* pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	UpdateData(TRUE);
 	fSliderOnInput = (float)mSliderOnInput.GetPos() / 10;
-	if (fSliderOnInput < 0.01) fSliderOnInput = 0.01;
+	if (fSliderOnInput < 0.2) fSliderOnInput = 0.2;
 
 	str2.Format(L"%.*f", 1, fSliderOnInput);
 	mStaticOnInput.SetWindowTextW(statictext22 + str2);
@@ -478,4 +480,18 @@ void CAdvancedTab::OnBnClickedCheckThreading()
 		::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_THREADING, 0);
 		
 
+}
+
+
+void CAdvancedTab::OnBnClickedButtonPath()
+{
+	CFileDialog FileDialog(TRUE);
+
+	if (FileDialog.DoModal() == IDOK)
+	{
+		mEditKeyboard = FileDialog.GetPathName();
+		UpdateData(FALSE);
+		//MessageBox(NULL, mEditKeyboard, NULL);
+	}
+	;
 }

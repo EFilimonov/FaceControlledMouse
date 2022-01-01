@@ -41,6 +41,7 @@ public:
 #define UWM_CUSTOMSTARTTRACK (WM_APP+6)
 #define UWM_CUSTOMCLICK (WM_APP+7)
 	
+	CString editKeyboard;
 	int faceFrames = 5;
 	float pauseTime = 4;
 	CRect buttonStartPosition;

@@ -220,8 +220,6 @@ public:
 	bool flipCameraFlag = false;
 	bool showVideoFlag = true;
 
-	CString editKeyboard;
-
 	double ewmaAlpha = 0.6;
 	double ewmaSmileAlpha = 0.6;
 	//0.1 Less smoothing - faster to detect changes, but more prone to noise

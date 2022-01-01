@@ -157,7 +157,8 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	/// <returns></returns>
 
 	//sPathToFolder = "C:/Program Files (x86)/Face Controlled Mouse/";
-	sPathToFolder = "";
+	//sPathToFolder = "C:/Users/Eugene/source/repos/FaceControllerMFC/";
+	//sPathToFolder = "";
 
 	if (!enableMultithreading) cv::setNumThreads(1);
 
@@ -882,7 +883,7 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				return 0;
 
 			case IDC_EDIT_KEYBOARD:
-				trackerPtr->editKeyboard = mOptionsDlg.pCAdvancedTab.mEditKeyboard;
+				editKeyboard = mOptionsDlg.pCAdvancedTab.mEditKeyboard;
 				return 0;
 
 			case IDC_CHECK_EQUALIZE:
@@ -908,7 +909,7 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				trackerPtr->ewmaAlpha = mOptionsDlg.back_fSliderEWMA;
 				trackerPtr->velocitySlider = mOptionsDlg.back_fSliderAcceleration;
 				trackerPtr->minFaceNeighbors = mOptionsDlg.back_iSliderFace;
-				trackerPtr->editKeyboard = mOptionsDlg.back_mEditKeyboard;
+				editKeyboard = mOptionsDlg.back_mEditKeyboard;
 				pauseTime = mOptionsDlg.back_fSliderOnInput;
 				faceFrames = mOptionsDlg.back_iSliderFaceFrames;
 				trackerPtr->minCornersCount = mOptionsDlg.back_iSliderMinNum;
@@ -1014,11 +1015,23 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 			return 0;
 
 		case ID_TIMER_MOVELOCK:
+
+			trackerPtr->facialFilterX.reset();
+			trackerPtr->facialFilterY.reset();
+
+			GetCursorPos(&cursorPos);
+			trackerPtr->mouseX = cursorPos.x;
+			trackerPtr->mouseY = cursorPos.y;
+
+			mMouseDlg->moveMouseDlg(cursorPos.x, cursorPos.y);
+
 			trackerPtr->mouseHookPause = false;
 			mMouseDlg->changePie(mMouseDlg->NEUTRAL);
 			if (!mMouseDlg->IsWindowVisible()) mMouseDlg->ShowWindow(SW_SHOW);
 			KillTimer(ID_TIMER_MOVELOCK);
 			if (!trackerPtr->buttonStop) trackerPtr->turnOffClick = false;
+
+
 
 			return 0;
 
@@ -1049,7 +1062,7 @@ void CFaceControllerMFCDlg::onApplyActions()
 	mOptionsDlg.back_fSliderEWMA = trackerPtr->ewmaAlpha;
 	mOptionsDlg.back_fSliderAcceleration = trackerPtr->velocitySlider;
 	mOptionsDlg.back_iSliderFace = trackerPtr->minFaceNeighbors;
-	mOptionsDlg.back_mEditKeyboard = trackerPtr->editKeyboard;
+	mOptionsDlg.back_mEditKeyboard = editKeyboard;
 	mOptionsDlg.back_fSliderOnInput = pauseTime;
 
 }
@@ -1221,9 +1234,12 @@ void CFaceControllerMFCDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 // save main dialog parameters
 void CFaceControllerMFCDlg::serializeChanges()
-{
+{ 
+
+
 	cv::FileStorage fs(sPathToFolder + "config.xml", cv::FileStorage::WRITE);
-	if (!fs.isOpened()) MessageBox(NULL, _T("Failed to open config.xml file, your changes are not saved!"), NULL);
+
+	if (!fs.isOpened()) MessageBox(_T("Failed to open config.xml file, your changes are not saved!"), NULL, NULL);
 	else
 	{
 		fs << "detectSmileGeoFlag" << trackerPtr->detectSmileGeoFlag;
@@ -1249,7 +1265,7 @@ void CFaceControllerMFCDlg::serializeChanges()
 //		fs << "accumMoveRatio" << trackerPtr->accumMoveRatio;
 		fs << "velocitySlider" << trackerPtr->velocitySlider;
 		fs << "minFaceNeighbors" << trackerPtr->minFaceNeighbors;
-		std::string strStd = CT2A(trackerPtr->editKeyboard);
+		std::string strStd = CT2A(editKeyboard);
 		ek = strStd;
 		fs << "editKeyboard" << ek;
 		fs << "needEqualize" << trackerPtr->needEqualize;
@@ -1270,7 +1286,7 @@ void CFaceControllerMFCDlg::serializeChanges()
 void CFaceControllerMFCDlg::readSerialized()
 {
 	cv::FileStorage fs(sPathToFolder + "config.xml", cv::FileStorage::READ);
-	if (!fs.isOpened()) MessageBox(NULL, _T("Failed to open config.xml file for reading!"), NULL);
+	if (!fs.isOpened()) MessageBox(_T("Failed to open config.xml file for reading!"), NULL, NULL);
 	else
 	{
 		fs["detectSmileGeoFlag"] >> trackerPtr->detectSmileGeoFlag;
@@ -1295,7 +1311,7 @@ void CFaceControllerMFCDlg::readSerialized()
 //		fs["accumMoveRatio"] >> trackerPtr->accumMoveRatio;
 		fs["velocitySlider"] >> trackerPtr->velocitySlider;
 		fs["minFaceNeighbors"] >> trackerPtr->minFaceNeighbors;
-		fs["editKeyboard"] >> ek; trackerPtr->editKeyboard= ek.c_str(); mOptionsDlg.back_mEditKeyboard = trackerPtr->editKeyboard;
+		fs["editKeyboard"] >> ek; editKeyboard= ek.c_str(); mOptionsDlg.back_mEditKeyboard = editKeyboard;
 		fs["needEqualize"] >>  trackerPtr->needEqualize;
 		fs["needAutostart"] >> needAutostart;
 		fs["minDistRatio"] >> trackerPtr->minDistRatio;
@@ -1315,7 +1331,7 @@ void CFaceControllerMFCDlg::readSerialized()
 void CFaceControllerMFCDlg::resetDefaults()
 {
 	cv::FileStorage fs(sPathToFolder + "default.xml", cv::FileStorage::READ);
-	if (!fs.isOpened()) MessageBox(NULL, _T("Failed to open default.xml file, your changes are not saved!"), NULL);
+	if (!fs.isOpened()) MessageBox(_T("Failed to open default.xml file, your changes are not saved!"), NULL, NULL);
 	else
 	{
 		fs["detectSmileGeoFlag"] >> trackerPtr->detectSmileGeoFlag;
@@ -1340,7 +1356,7 @@ void CFaceControllerMFCDlg::resetDefaults()
 //		fs["accumMoveRatio"] >> trackerPtr->accumMoveRatio;
 		fs["velocitySlider"] >> trackerPtr->velocitySlider;
 		fs["minFaceNeighbors"] >> trackerPtr->minFaceNeighbors;
-		fs["editKeyboard"] >> ek; trackerPtr->editKeyboard = ek.c_str(); mOptionsDlg.back_mEditKeyboard = trackerPtr->editKeyboard;
+		fs["editKeyboard"] >> ek; editKeyboard = ek.c_str(); mOptionsDlg.back_mEditKeyboard = editKeyboard;
 		fs["needEqualize"] >> trackerPtr->needEqualize;
 		fs["minDistRatio"] >> trackerPtr->minDistRatio;
 		fs["minCornersCount"] >> trackerPtr->minCornersCount;
@@ -1402,7 +1418,7 @@ void CFaceControllerMFCDlg::initSettings()
 	trackerPtr->velocityK = trackerPtr->velocitySlider * 0.002 - 0.0014;
 	mOptionsDlg.pCAdvancedTab.fSliderOnInput = pauseTime;
 	mOptionsDlg.pCAdvancedTab.iSliderFace = trackerPtr->minFaceNeighbors;
-	mOptionsDlg.pCAdvancedTab.mEditKeyboard = trackerPtr->editKeyboard;
+	mOptionsDlg.pCAdvancedTab.mEditKeyboard = editKeyboard;
 	mOptionsDlg.pCAdvancedTab.fSliderEWMA = trackerPtr->ewmaAlpha;
 
 	// save for cancel
@@ -1418,9 +1434,10 @@ void CFaceControllerMFCDlg::initSettings()
 void CFaceControllerMFCDlg::OnBnClickedButtonOcr()
 {
 
-	if (trackerPtr->editKeyboard.GetLength() < 1)
+	if (editKeyboard.GetLength() < 1)
 	{
-		MessageBox(_T("Please add the path to the screen app in the settings!"));
+	//	MessageBox(_T("Please add the path to the screen app in the settings!"));
+		trackerPtr->tempinptext = "Please add the path!";
 		return;
 	}
 
@@ -1433,7 +1450,7 @@ void CFaceControllerMFCDlg::OnBnClickedButtonOcr()
 	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 	shExInfo.hwnd = 0;
 	shExInfo.lpVerb = _T("open");                // Operation to perform
-	shExInfo.lpFile = (LPCTSTR)trackerPtr->editKeyboard;       // Application to start    
+	shExInfo.lpFile = (LPCTSTR)editKeyboard;       // Application to start    
 	shExInfo.lpParameters = (LPCTSTR)"";                  // Additional parameters
 	shExInfo.lpDirectory = 0;
 	shExInfo.nShow = SW_SHOW;

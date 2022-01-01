@@ -127,4 +127,5 @@ public:
 	CStatic mStaticFaceFrames;
 	CSliderCtrl mSliderFaceFrames;
 	afx_msg void OnNMCustomdrawSliderFaceFrames(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnBnClickedButtonPath();
 };

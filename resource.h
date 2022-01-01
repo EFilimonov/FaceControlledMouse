@@ -1472,9 +1472,10 @@
 #define stc7                            0x0446
 #define IDC_STATIC_FACE_FRAMES          1094
 #define stc8                            0x0447
-#define IDC_SLIDER1                     1095
 #define IDC_SLIDER_FACE_FRAMES          1095
 #define stc9                            0x0448
+#define IDC_BUTTON_PASS                 1096
+#define IDC_BUTTON_PATH                 1096
 #define stc10                           0x0449
 #define stc11                           0x044a
 #define stc12                           0x044b
@@ -1746,7 +1747,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        189
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1096
+#define _APS_NEXT_CONTROL_VALUE         1097
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
