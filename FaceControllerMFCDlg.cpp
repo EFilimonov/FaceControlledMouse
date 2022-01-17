@@ -26,6 +26,7 @@ END_MESSAGE_MAP()
 
 HHOOK MouseHook;
 bool isGlobalMouseMove = false;
+bool isLButonPressed = false;
 
 
 LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -36,7 +37,20 @@ LRESULT CALLBACK MouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 		{
 			isGlobalMouseMove = true;
 		}
-		else isGlobalMouseMove = false;
+
+		if (wParam == WM_LBUTTONDOWN)
+		{
+			isGlobalMouseMove = true;
+			isLButonPressed = true;
+		}
+		if (wParam == WM_LBUTTONUP)
+		{
+			isGlobalMouseMove = true;
+			isLButonPressed = false;
+		}
+
+
+		//else isGlobalMouseMove = false;
 	}
 	return CallNextHookEx(MouseHook, nCode, wParam, lParam);
 }
@@ -145,9 +159,6 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-
-
-
 	sPathToFolder = ExePath();
 
 
@@ -158,7 +169,7 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 
 	//sPathToFolder = "C:/Program Files (x86)/Face Controlled Mouse/";
 	//sPathToFolder = "C:/Users/Eugene/source/repos/FaceControllerMFC/";
-	//sPathToFolder = "";
+	sPathToFolder = "";
 
 	if (!enableMultithreading) cv::setNumThreads(1);
 
@@ -292,7 +303,6 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	pButton_Drag->SetBitmap(bmp_drag);
 
 
-
 	pBigLogoPic->SetBitmap(bmp_bigLogo);
 
 
@@ -375,9 +385,6 @@ BOOL CFaceControllerMFCDlg::OnInitDialog()
 	}
 
 	bool openFlag = true;
-
-
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -609,7 +616,7 @@ void CFaceControllerMFCDlg::MouseActions()
 	{
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(30));
-			if (!trackerPtr->mouseHookPause)
+			if (!trackerPtr->mouseHookPause && !isLButonPressed)
 			{
 				mMouseDlg->moveMouseDlg(trackerPtr->mouseX, trackerPtr->mouseY);
 			}
@@ -633,6 +640,7 @@ void CFaceControllerMFCDlg::OnBnClickedOk()
 	trackerPtr->openFlag = false;
 	trackerPtr->cap.release();
 	UnhookMouse();
+	cv::destroyAllWindows();
 	CDialogEx::OnOK();
 }
 
@@ -642,6 +650,7 @@ void CFaceControllerMFCDlg::OnClose()
 	trackerPtr->openFlag = false;
 	trackerPtr->cap.release();
 	UnhookMouse();
+	cv::destroyAllWindows();
 	CDialogEx::OnClose();
 
 }
@@ -868,11 +877,6 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				trackerPtr->needToTrackerInit = true;
 				return 0;
 
-/*			case IDC_SLIDER_MARKS:
-				trackerPtr->accumMoveRatio = mOptionsDlg.pCAdvancedTab.fSliderMarks;
-				trackerPtr->needToTrackerInit = true;
-				return 0;*/
-
 			case IDC_SLIDER_ACCELERATION:
 				trackerPtr->velocitySlider = mOptionsDlg.pCAdvancedTab.fSliderAcceleration;
 				trackerPtr->velocityK = trackerPtr->velocitySlider * 0.002 - 0.0014;
@@ -913,7 +917,6 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 				pauseTime = mOptionsDlg.back_fSliderOnInput;
 				faceFrames = mOptionsDlg.back_iSliderFaceFrames;
 				trackerPtr->minCornersCount = mOptionsDlg.back_iSliderMinNum;
-
 
 				return 0;
 
@@ -1031,8 +1034,6 @@ LRESULT CFaceControllerMFCDlg::WindowProc(UINT message, WPARAM wParam, LPARAM lP
 			KillTimer(ID_TIMER_MOVELOCK);
 			if (!trackerPtr->buttonStop) trackerPtr->turnOffClick = false;
 
-
-
 			return 0;
 
 		}
@@ -1110,7 +1111,6 @@ void CFaceControllerMFCDlg::OnBnClickedButtonGeo()
 		pButton_dwell->SetBitmap(bmp_dwell);
 		pButton_dwell->RedrawWindow();
 		pButton_geo->RedrawWindow();
-
 	}
 }
 
@@ -1227,16 +1227,11 @@ void CFaceControllerMFCDlg::OnSizing(UINT fwSide, LPRECT pRect)
 	CDialogEx::OnSizing(fwSide, pRect);
 
 	resizeCVWindow();
-
-
-		
 }
 
 // save main dialog parameters
 void CFaceControllerMFCDlg::serializeChanges()
 { 
-
-
 	cv::FileStorage fs(sPathToFolder + "config.xml", cv::FileStorage::WRITE);
 
 	if (!fs.isOpened()) MessageBox(_T("Failed to open config.xml file, your changes are not saved!"), NULL, NULL);
@@ -1262,7 +1257,6 @@ void CFaceControllerMFCDlg::serializeChanges()
 		fs << "flipCameraFlag" << trackerPtr->flipCameraFlag;
 		fs << "showVideoFlag" << trackerPtr->showVideoFlag;
 		fs << "ewmaAlpha" << trackerPtr->ewmaAlpha;
-//		fs << "accumMoveRatio" << trackerPtr->accumMoveRatio;
 		fs << "velocitySlider" << trackerPtr->velocitySlider;
 		fs << "minFaceNeighbors" << trackerPtr->minFaceNeighbors;
 		std::string strStd = CT2A(editKeyboard);
@@ -1308,7 +1302,6 @@ void CFaceControllerMFCDlg::readSerialized()
 		fs["flipCameraFlag"] >> trackerPtr->flipCameraFlag;
 		fs["showVideoFlag"] >> trackerPtr->showVideoFlag;
 		fs["ewmaAlpha"] >> trackerPtr->ewmaAlpha;
-//		fs["accumMoveRatio"] >> trackerPtr->accumMoveRatio;
 		fs["velocitySlider"] >> trackerPtr->velocitySlider;
 		fs["minFaceNeighbors"] >> trackerPtr->minFaceNeighbors;
 		fs["editKeyboard"] >> ek; editKeyboard= ek.c_str(); mOptionsDlg.back_mEditKeyboard = editKeyboard;
@@ -1353,7 +1346,6 @@ void CFaceControllerMFCDlg::resetDefaults()
 		fs["flipCameraFlag"] >> trackerPtr->flipCameraFlag;
 		fs["showVideoFlag"] >> trackerPtr->showVideoFlag;
 		fs["ewmaAlpha"] >> trackerPtr->ewmaAlpha;
-//		fs["accumMoveRatio"] >> trackerPtr->accumMoveRatio;
 		fs["velocitySlider"] >> trackerPtr->velocitySlider;
 		fs["minFaceNeighbors"] >> trackerPtr->minFaceNeighbors;
 		fs["editKeyboard"] >> ek; editKeyboard = ek.c_str(); mOptionsDlg.back_mEditKeyboard = editKeyboard;
@@ -1477,7 +1469,6 @@ void CFaceControllerMFCDlg::OnBnClickedButtonDrag()
 	pButton_Drag->SetBitmap(bmp_dragp);
 	trackerPtr->mMouseDlg->mouseClick = trackerPtr->mMouseDlg->DRAG;
 	mMouseDlg->secDuration = mMouseDlg->secToOneClickCancelDuration;
-	// TODO: Add your control notification handler code here
 }
 
 
@@ -1567,7 +1558,6 @@ LPWSTR CFaceControllerMFCDlg::ConvertString(const std::string& instr)
 
 	if (bufferlen == 0)
 	{
-		// Something went wrong. Perhaps, check GetLastError() and log.
 		return 0;
 	}
 

@@ -28,19 +28,15 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHECK_FLIPCAMERA, mCheckFlipCamera);
 	DDX_Control(pDX, IDC_SLIDER_EWMA, mSliderEWMA);
-	//	DDX_Control(pDX, IDC_SLIDER_MARKS, mSliderMarks);
 	DDX_Control(pDX, IDC_SLIDER_ACCELERATION, mSliderAcceleration);
 	DDX_Control(pDX, IDC_SLIDER_FACE_SENSITIVITY, mSliderFace);
 	DDX_Control(pDX, IDC_STATIC_EWMA, mStaticEWMA);
-	//	DDX_Control(pDX, IDC_STATIC_MARKS, mStaticMarks);
 	DDX_Control(pDX, IDC_STATIC_ACCELERATION, mStaticAcceleration);
 	DDX_Control(pDX, IDC_STATIC_FACE_SENSITIVITY, mStaticFace);
 	DDX_Text(pDX, IDC_EDIT_KEYBOARD, mEditKeyboard);
 	DDX_Control(pDX, IDC_CHECK_EQUALIZE, mCheckEqualize);
 	DDX_Control(pDX, IDC_SLIDER_FACE_MINNUM, mSliderFaceMinNum);
-	//	DDX_Control(pDX, IDC_SLIDER_FACE_MINDIST, mSliderFaceMaxNum);
 	DDX_Control(pDX, IDC_STATIC_MINNUM, mStaticMinNum);
-	//DDX_Control(pDX, IDC_STATIC_MINDIST, mStaticMaxNum);
 	DDX_Control(pDX, IDC_SLIDER_CUSTOM, mSliderCustom);
 	DDX_Control(pDX, IDC_STATIC_CUSTOM, mStaticCustom);
 	DDX_Control(pDX, IDC_CHECK_AUTOSTART, mCheckAutostart);
@@ -58,7 +54,6 @@ void CAdvancedTab::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_BN_CLICKED(IDC_CHECK_FLIPCAMERA, &CAdvancedTab::OnBnClickedCheckFlipcamera)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_EWMA, &CAdvancedTab::OnNMCustomdrawSliderEwma)
-//	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_MARKS, &CAdvancedTab::OnNMCustomdrawSliderMarks)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_ACCELERATION, &CAdvancedTab::OnNMCustomdrawSliderAcceleration)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_SENSITIVITY, &CAdvancedTab::OnNMCustomdrawSliderFaceSensitivity)
 	ON_BN_CLICKED(IDC_BUTTON_RESET, &CAdvancedTab::OnBnClickedButtonReset)
@@ -66,7 +61,6 @@ BEGIN_MESSAGE_MAP(CAdvancedTab, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT_KEYBOARD, &CAdvancedTab::OnEnChangeEditKeyboard)
 	ON_BN_CLICKED(IDC_CHECK_EQUALIZE, &CAdvancedTab::OnBnClickedCheckEqualize)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_MINNUM, &CAdvancedTab::OnNMCustomdrawSliderFaceMinnum)
-	//ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_FACE_MINDIST, &CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_CUSTOM, &CAdvancedTab::OnNMCustomdrawSliderCustom)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSTART, &CAdvancedTab::OnBnClickedCheckAutostart)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_ONINPUT, &CAdvancedTab::OnNMCustomdrawSliderOninput)
@@ -84,10 +78,10 @@ BOOL CAdvancedTab::OnInitDialog()
 	CDialogEx::OnInitDialog();
 	hWnd = AfxGetApp()->m_pMainWnd->m_hWnd;
 	mSliderEWMA.SetRange(1, 80);
-//	mSliderMarks.SetRange(30, 98);
+	//	mSliderMarks.SetRange(30, 98);
 	mSliderAcceleration.SetRange(10, 50);
 	mSliderFace.SetRange(2, 100);
-//	mSliderFaceMaxNum.SetRange(10, 25);
+	//	mSliderFaceMaxNum.SetRange(10, 25);
 	mSliderFaceMinNum.SetRange(3, 15);
 	mSliderCustom.SetRange(1, 10);
 	mSliderOnInput.SetRange(2, 100);
@@ -214,24 +208,6 @@ void CAdvancedTab::OnNMCustomdrawSliderEwma(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-/*
-void CAdvancedTab::OnNMCustomdrawSliderMarks(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	UpdateData(TRUE);
-	fSliderMarks = (float)mSliderMarks.GetPos() / 100;
-	if (fSliderMarks < 0.3) fSliderMarks = 0.3;
-
-	str2.Format(L"%.*f", 0, fSliderMarks * 100);
-	//str1 = "% of marks moving in one direction: ";
-	mStaticMarks.SetWindowTextW(statictext24 + str2 + "%");
-
-
-	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_MARKS, 0);
-	*pResult = 0;
-}*/
-
-
 void CAdvancedTab::OnNMCustomdrawSliderAcceleration(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
@@ -239,7 +215,7 @@ void CAdvancedTab::OnNMCustomdrawSliderAcceleration(NMHDR* pNMHDR, LRESULT* pRes
 	fSliderAcceleration = (float)mSliderAcceleration.GetPos() / 10;
 	if (fSliderAcceleration < 1.0) fSliderAcceleration = 1.0;
 	str2.Format(L"%.*f", 1, fSliderAcceleration);
-//	str1 = "Acceleration: ";
+	//	str1 = "Acceleration: ";
 	mStaticAcceleration.SetWindowTextW(statictext25 + str2);
 
 
@@ -256,7 +232,7 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceSensitivity(NMHDR* pNMHDR, LRESULT* p
 	iSliderFace = (int)mSliderFace.GetPos();
 	if (iSliderFace < 2) iSliderFace = 2;
 	str2.Format(L"%.*i", 0, iSliderFace);
-//	str1 = "Threshold (AI): ";
+	//	str1 = "Threshold (AI): ";
 	mStaticFace.SetWindowTextW(statictext27 + str2);
 
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_FACE_SENSITIVITY, 0);
@@ -338,9 +314,9 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceMinnum(NMHDR* pNMHDR, LRESULT* pResul
 	UpdateData(TRUE);
 	iSliderMinNum = mSliderFaceMinNum.GetPos();
 	if (iSliderMinNum < 3) iSliderMinNum = 3;
-//	if (iSliderMinNum > iSliderMaxNum - 2) iSliderMinNum > iSliderMaxNum - 2;
+	//	if (iSliderMinNum > iSliderMaxNum - 2) iSliderMinNum > iSliderMaxNum - 2;
 	str2.Format(L"%.*i", 0, iSliderMinNum);
-//	str1 = "Min marks: ";
+	//	str1 = "Min marks: ";
 	mStaticMinNum.SetWindowTextW(statictext29 + str2);
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_FACE_MINNUM, 0);
 
@@ -363,24 +339,6 @@ void CAdvancedTab::OnNMCustomdrawSliderFaceFrames(NMHDR* pNMHDR, LRESULT* pResul
 	*pResult = 0;
 }
 
-
-/*
-void CAdvancedTab::OnNMCustomdrawSliderFaceMaxnum(NMHDR* pNMHDR, LRESULT* pResult)
-{
-	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
-	UpdateData(TRUE);
-	iSliderMaxNum = mSliderFaceMaxNum.GetPos();
-	if (iSliderMaxNum < 10) iSliderMaxNum = 10;
-	if (iSliderMaxNum < iSliderMinNum + 2) iSliderMaxNum = iSliderMinNum + 2;
-	str2.Format(L"%.*i", 0, iSliderMaxNum);
-//	str1 = "Max marks: ";
-	mStaticMaxNum.SetWindowTextW(statictext30 + str2);
-	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_FACE_MINDIST, 0);
-
-	*pResult = 0;
-}
-*/
-
 void CAdvancedTab::OnNMCustomdrawSliderCustom(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
@@ -388,7 +346,7 @@ void CAdvancedTab::OnNMCustomdrawSliderCustom(NMHDR* pNMHDR, LRESULT* pResult)
 	iSliderCustom = mSliderCustom.GetPos();
 	if (iSliderCustom < 1) iSliderCustom = 1;
 	str2.Format(L"%.*i", 0, iSliderCustom);
-//	str1 = "Cells/width: ";
+	//	str1 = "Cells/width: ";
 	mStaticCustom.SetWindowTextW(statictext28 + str2);
 	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_SLIDER_CUSTOM, 0);
 	*pResult = 0;
@@ -463,22 +421,12 @@ void CAdvancedTab::OnCbnSelchangeComboLanguage()
 
 void CAdvancedTab::OnBnClickedCheckThreading()
 {
-	//enableMultithreading
-	// TODO: Add your control notification handler code here
-	/*
+	UpdateData(TRUE);
+	if (mCheckThreading.GetCheck() == NULL) enableMultithreading = false;
+	else enableMultithreading = true;
 
-	if (mCheckSound.GetCheck() == NULL) needSound = false;
-	else needSound = true;
+	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_THREADING, 0);
 
-	::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_SOUND, 0);
-	
-	*/
-		UpdateData(TRUE);
-		if (mCheckThreading.GetCheck() == NULL) enableMultithreading = false;
-		else enableMultithreading = true;
-
-		::SendMessage(hWnd, UWM_UPDATE_OPTIONS, (WPARAM)IDC_CHECK_THREADING, 0);
-		
 
 }
 
@@ -491,7 +439,5 @@ void CAdvancedTab::OnBnClickedButtonPath()
 	{
 		mEditKeyboard = FileDialog.GetPathName();
 		UpdateData(FALSE);
-		//MessageBox(NULL, mEditKeyboard, NULL);
 	}
-	;
 }
